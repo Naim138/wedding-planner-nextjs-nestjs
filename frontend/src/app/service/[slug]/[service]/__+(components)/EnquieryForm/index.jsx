@@ -18,7 +18,7 @@ const EnquieryForm = ({serviceId}) => {
             name:user?.name||'',
             email:user?.email||'',
             phone:user?.phone_no||'',
-            message:'' 
+            message:'I want to check availability and booking details for this wedding service.' 
         }
 
         const validationSchema = yup.object({
@@ -59,8 +59,8 @@ const EnquieryForm = ({serviceId}) => {
             <>
                     <Formik onSubmit={onSubmitHandler} validationSchema={validationSchema} initialValues={intialValues}>
                         <Form className=' w-[98%] lg:w-[90%] mx-auto overflow-hidden'> 
-                            <div className=" bg-logo py-5 rounded-t-3xl ">
-                                <h1 className='text-center text-2xl text-white font-psmbold'>Enqury Form</h1>
+                            <div className=" bg-logo py-5 rounded-t-md ">
+                                <h1 className='text-center text-2xl text-white font-psmbold'>Booking Request</h1>
                             </div>
                             <div className="form bg-white px-5 py-3 border">
                                 <div className="mb-3">
@@ -79,12 +79,12 @@ const EnquieryForm = ({serviceId}) => {
                                     <ErrorMessage name='phone' className='text-red-500 text-xs capitalize' component={'p'} />
                                 </div>
                                 <div className="mb-3">
-                                    <label htmlFor="message">Message <span className="text-red-500">*</span> </label>
+                                    <label htmlFor="message">Booking Details <span className="text-red-500">*</span> </label>
                                     <Field as="textarea" name="message" className="w-full py-2 rounded border outline-none  px-4 bg-transparent" id="message"  placeholder="Enter Your Message"/>
                                     <ErrorMessage name='message' className='text-red-500 text-xs capitalize' component={'p'} />
                                 </div>
                                 <div className="mb-3">
-                                    <CustomButton type="submit" className={'!bg-logo'} label={'Submit'} isLoading={sendResponse.isLoading} />
+                                    <CustomButton type="submit" className={'!bg-logo'} label={'Send Booking Request'} isLoading={sendResponse.isLoading} />
                                 </div> 
 
                             </div>

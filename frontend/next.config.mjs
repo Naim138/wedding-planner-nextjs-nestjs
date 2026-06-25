@@ -1,8 +1,19 @@
-/** @type {import('next').NextConfig} */
+import withPWA from "next-pwa";
+
+const isDev = process.env.NODE_ENV === "development";
+
 const nextConfig = {
-    images:{
-        domains:['res.cloudinary.com']
-    }
+  reactStrictMode: true,
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
 };
 
-export default nextConfig;
+export default withPWA({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: true,
+})(nextConfig);

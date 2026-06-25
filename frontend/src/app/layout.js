@@ -8,8 +8,9 @@ import Script from 'next/script';
  
 
 export const metadata = {
-  title: "Subh Vivah",
-  description: "Shubh Vivah is a wedding planning service that aims to transform the wedding planning experience for Indian couples, offering a range of services including vendor management, event flow management, decor planning, guest management, and more, with a focus on creating memorable and personalized celebrations. ",
+  title: "WeddingSphere",
+  description: "WeddingSphere is a wedding planning service that aims to transform the wedding planning experience for Indian couples, offering a range of services including vendor management, event flow management, decor planning, guest management, and more, with a focus on creating memorable and personalized celebrations. ",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }) {

@@ -31,6 +31,13 @@ export class AuthController {
                 return res_obj
          }   
 
+          @Get('/my-enquiries')
+          @UseGuards(AuthGuard)
+          async getMyEnqueries(@Req() req){
+                 const res_obj = await this.authService.getMyEnqueries(req.user)
+                 return res_obj
+          }
+
 
          @Put("/update-avatar")
          @UseGuards(AuthGuard)    

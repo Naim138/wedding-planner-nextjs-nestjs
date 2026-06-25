@@ -1,9 +1,11 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { dynamicBaseQuery } from '../../../config/api'
+
 // Define a service using a base URL and expected endpoints
 export const AdminCategoryQuery = createApi({
     reducerPath: 'AdminCategoryQuery',
     tagTypes:['getAllCategories','singleCategory'],
-    baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_BASE_URI+"/admin/category"  }),
+    baseQuery: dynamicBaseQuery('/admin/category'),
     endpoints: (build) => ({
       createCategory: build.mutation({
         query: (data) => ({

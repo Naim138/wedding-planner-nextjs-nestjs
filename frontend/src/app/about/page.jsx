@@ -59,7 +59,7 @@ const AboutPage = () => {
       </div>
       <div className="w-full lg:justify-start justify-center items-start flex">
         <div className="sm:w-[564px] w-full sm:h-[646px] h-full sm:bg-gray-100 rounded-3xl sm:border border-gray-200 relative">
-          <img className="sm:mt-5 sm:ml-5 w-full h-full rounded-3xl object-cover" src="https://e1.pxfuel.com/desktop-wallpaper/288/531/desktop-wallpaper-indian-wedding-couple-indian-marriage.jpg" alt="about Us image" />
+          <img className="sm:mt-5 sm:ml-5 w-full h-full rounded-3xl object-cover" src="https://e0.pxfuel.com/wallpapers/86/243/desktop-wallpaper-classy-elegant-wedding-graphy-hinduweddinggraphy-indian-wedding-graphy-poses-indian-wedding-graphy-indian-wedding-graphy-couples-bridal-couple.jpg" alt="about Us image" />
         </div>
       </div>
     </div>

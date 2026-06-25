@@ -10,6 +10,9 @@ import cloudinary from 'src/utils/Cloudiary';
 import { Category } from 'src/models/Category.model';
 import { Service } from 'src/models/Service.model';
 import { Enquery } from 'src/models/Enquery.model';
+import { Budget } from 'src/models/Budget.model';
+import { Checklist } from 'src/models/Checklist.model';
+import { Matchmaker } from 'src/models/Matchmaker.model';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +21,9 @@ export class AuthService {
     @InjectModel(Category.name) private readonly CategoryModel:Model<Category>,
             @InjectModel(Service.name) private readonly ServiceModel:Model<Service>,
             @InjectModel(Enquery.name) private readonly EnqueryModel:Model<Enquery>,
+            @InjectModel(Budget.name) private readonly BudgetModel:Model<Budget>,
+            @InjectModel(Checklist.name) private readonly ChecklistModel:Model<Checklist>,
+            @InjectModel(Matchmaker.name) private readonly MatchmakerModel:Model<Matchmaker>,
     
     private jwtService: JwtService){}
     
@@ -102,13 +108,31 @@ export class AuthService {
         let data:any ={}
         if(role==='user'){
             data={
-                total_enquries:0
+                total_enquries:0,
+                total_budget_items:0,
+                total_checklist_items:0,
+                completed_checklist_items:0,
+                total_matches:0,
+                estimated_budget:0,
+                actual_budget:0
             }
-            const toalEnqueries = await this.EnqueryModel.countDocuments({
-                email:user?.email
-            })
+            const toalEnqueries = await this.EnqueryModel.countDocuments({ email:user?.email })
+            const totalBudgetItems = await this.BudgetModel.countDocuments({ user:id })
+            const budgetTotals = await this.BudgetModel.aggregate([
+                { $match: { user: user?._id } },
+                { $group: { _id: null, estimated_budget: { $sum: '$estimatedCost' }, actual_budget: { $sum: '$actualCost' } } }
+            ])
+            const totalChecklistItems = await this.ChecklistModel.countDocuments({ user:id })
+            const completedChecklistItems = await this.ChecklistModel.countDocuments({ user:id, completed:true })
+            const totalMatches = await this.MatchmakerModel.countDocuments({ user:id })
            data ={
-                'total_enquries':toalEnqueries
+                'total_enquries':toalEnqueries,
+                'total_budget_items':totalBudgetItems,
+                'estimated_budget':budgetTotals[0]?.estimated_budget || 0,
+                'actual_budget':budgetTotals[0]?.actual_budget || 0,
+                'total_checklist_items':totalChecklistItems,
+                'completed_checklist_items':completedChecklistItems,
+                'total_matches':totalMatches
             }
             profile['dashboard']=data
         }
@@ -118,19 +142,14 @@ export class AuthService {
                 'total_services':0,
                 'total_enquries':0
             }
-           const total_services= await this.ServiceModel.countDocuments({user:id})
+           const vendorServices= await this.ServiceModel.find({user:id}).select("_id")
+           const serviceIds = vendorServices.map((service) => service._id)
 
-           data['total_services']=total_services
+           data['total_services']=vendorServices.length
 
-           const all_enquries = await this.EnqueryModel.find({})
-           .populate("service","user")
-
-      
-         const total_enquries=  await Promise.all(all_enquries.filter(async(cur,i)=>{
-                return cur.service.user === (id as any)
-           }))
-
-           data['total_enquries']=total_enquries.length
+           data['total_enquries']= await this.EnqueryModel.countDocuments({
+            service: { $in: serviceIds }
+           })
 
 
 
@@ -144,6 +163,9 @@ export class AuthService {
                     'total_vendors':0,
                     'total_users':0,
                     'total_enquries':0,
+                    'total_budget_items':0,
+                    'total_checklist_items':0,
+                    'total_matches':0,
                 }
 
 
@@ -174,6 +196,10 @@ export class AuthService {
                 })
 
                 data['total_categories'] =total_categories
+
+                data['total_budget_items'] = await this.BudgetModel.countDocuments()
+                data['total_checklist_items'] = await this.ChecklistModel.countDocuments()
+                data['total_matches'] = await this.MatchmakerModel.countDocuments()
 
 
                 
@@ -228,6 +254,28 @@ console.log("user profiled  ",profiled)
         return {
             msg:"Profile Updated Succesfully !"
         }
+    }
+
+    async getMyEnqueries(userId: string) {
+        const user = await this.UserModel.findById(userId);
+        if (!user) {
+            throw new BadRequestException("User Not Found");
+        }
+
+        const enquiries = await this.EnqueryModel.find({
+            email: user.email.toLowerCase()
+        })
+        .populate({
+            path: 'service',
+            select: 'title budget category images user slug',
+            populate: [
+                { path: 'category', select: 'name slug' },
+                { path: 'user', select: 'name email' }
+            ]
+        })
+        .sort({ createdAt: -1 });
+
+        return enquiries;
     }
 
 }

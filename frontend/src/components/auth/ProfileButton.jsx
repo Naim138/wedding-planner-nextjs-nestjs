@@ -14,8 +14,11 @@ import {
   } from "@/components/ui/dropdown-menu"
 import Link from 'next/link'
 import { useMainContext } from '@/context/MainContext'
-const ProfileButton = () => {
+import { useSelector } from 'react-redux'
+import { UserSlicePath } from "@/app/redux/slices/UserSlice"
 
+const ProfileButton = () => {
+    const user = useSelector(UserSlicePath)
     const {logoutHandler}= useMainContext()
 
   return (
@@ -25,8 +28,8 @@ const ProfileButton = () => {
                 <DropdownMenu >
   <DropdownMenuTrigger >
   <Avatar className={'cursor-pointer'}>
-                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarImage src={user && user.avatar ? user.avatar : "https://github.com/shadcn.png"} alt={user?.name || "User Avatar"} />
+                <AvatarFallback>{user?.name ? user.name.slice(0,2).toUpperCase() : "CN"}</AvatarFallback>
                 </Avatar>
   </DropdownMenuTrigger>
   <DropdownMenuContent  className={''} >

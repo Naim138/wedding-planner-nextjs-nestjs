@@ -4,13 +4,14 @@ import React, { useEffect, useState } from 'react'
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { IoIosArrowForward } from "react-icons/io";
 
-import {MdOutlineContactSupport, MdOutlineSpaceDashboard} from 'react-icons/md'
+import {MdOutlineContactSupport, MdOutlineSpaceDashboard, MdOutlinePerson, MdOutlineCategory, MdOutlineExplore} from 'react-icons/md'
 import { usePathname, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { SidebarSlicePath, toggleCollapse, toggleSidebar } from '../redux/slices/SidebarSlice';
 import { UserSlicePath } from '../redux/slices/UserSlice';
 import Loader from '@/components/Loader';
 import { VscFeedback } from "react-icons/vsc";
+import { IoHeartOutline, IoListOutline, IoCardOutline, IoAddCircleOutline } from "react-icons/io5";
 
 import { GoGear } from "react-icons/go";
 
@@ -74,7 +75,9 @@ const RootTemplalate = ({children}) => {
       <MenuItem> Line charts </MenuItem>
     </SubMenu> */}
     <CustomMenuItem Icon={MdOutlineSpaceDashboard } link={'/dashboard'} title={'Dashboard'} />  
-    {/* <CustomMenuItem Icon={MdOutlineSpaceDashboard } link={'/profile'} title={'Profile'} /> */}
+    <CustomMenuItem Icon={MdOutlinePerson} link={'/profile'} title={'Profile'} />
+    <CustomMenuItem Icon={MdOutlineExplore} link={'/service'} title={'Browse Services'} />
+    <CustomMenuItem Icon={MdOutlineCategory} link={'/all-categories'} title={'All Categories'} />
 
 
             {user &&user?.role ==="user" ?<>
@@ -114,18 +117,23 @@ export default RootTemplalate
 
 const UserMenus=()=>{
   return <>
-  <CustomMenuItem link={'/feedback'} title={'Feedback'}  Icon={VscFeedback }/>
+  <CustomMenuItem link={'/my-enquiries'} title={'My Enquiries'}  Icon={MdOutlineContactSupport }/>
+  <CustomMenuItem link={'/checklist'} title={'Checklist'}  Icon={IoListOutline }/>
+  <CustomMenuItem link={'/budget'} title={'Budget Tracker'}  Icon={IoCardOutline }/>
+  <CustomMenuItem link={'/matchmaker'} title={'AI Matchmaker'}  Icon={IoHeartOutline }/>
   </>
 }
 const AdminMenus=()=>{
  return  <>
-  <CustomMenuItem link={'/categories'} title={'Services'}  Icon={GoGear }/>
+  <CustomMenuItem link={'/categories'} title={'Categories'}  Icon={GoGear }/>
+  <CustomMenuItem link={'/categories/create'} title={'Create Category'}  Icon={IoAddCircleOutline }/>
   
   </>
 }
 const VendorMenus=()=>{
  return  <>
   <CustomMenuItem link={'/services'} title={'Services'}  Icon={GoGear }/>
+  <CustomMenuItem link={'/services/create'} title={'Create Service'}  Icon={IoAddCircleOutline }/>
   <CustomMenuItem link={'/queries'} title={'Queries'}  Icon={MdOutlineContactSupport  }/>
  
  </>

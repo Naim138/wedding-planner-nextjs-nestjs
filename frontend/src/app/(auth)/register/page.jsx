@@ -49,8 +49,12 @@ const RegisterPage = () => {
 
 
             } catch (error) {
-                toast.error( error.response.data.message ||error.message)
-            }finally{
+                let errMsg = error?.response?.data?.message || error?.message || "Registration failed";
+                if (error?.message === "Network Error") {
+                    errMsg = "Network Error: Cannot reach server. Please check your internet connection and Server Settings.";
+                }
+                toast.error(errMsg)
+            } finally {
                 setIsLoading(false)
             }
         }
@@ -108,6 +112,28 @@ const RegisterPage = () => {
                             <p className="text-end text-indigo-500">
                                 Already Have An Account ? <Link href={'/login'} className='text-indigo-600 font-psmbold'>Login</Link>
                             </p>
+                        </div>
+                        
+                        <div className="mt-6 border-t border-indigo-400/20 pt-4 text-center">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const currentUrl = localStorage.getItem("custom_api_url") || "http://192.168.1.34:5000/api/v1";
+                                    const newUrl = prompt("Configure backend server URL (e.g. http://192.168.1.34:5000/api/v1):", currentUrl);
+                                    if (newUrl !== null) {
+                                        if (newUrl.trim() === "") {
+                                            localStorage.removeItem("custom_api_url");
+                                            toast.info("Reset to default server URL");
+                                        } else {
+                                            localStorage.setItem("custom_api_url", newUrl.trim());
+                                            toast.success("Updated server URL to: " + newUrl.trim());
+                                        }
+                                    }
+                                }}
+                                className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                            >
+                                ⚙️ Server Settings
+                            </button>
                         </div>
                         
            </Form>

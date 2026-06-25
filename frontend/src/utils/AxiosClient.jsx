@@ -1,5 +1,3 @@
-import axios from "axios";
+import api from "../config/api";
 
-export const axiosClient = axios.create({
-    baseURL:process.env.NEXT_PUBLIC_BASE_URI
-})
+export const axiosClient = api;

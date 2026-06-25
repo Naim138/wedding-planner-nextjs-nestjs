@@ -9,6 +9,9 @@ import { Profile, ProfileSchema } from 'src/models/Profile.model';
 import { Category, CategorySchema } from 'src/models/Category.model';
 import { Service, ServiceSchema } from 'src/models/Service.model';
 import { Enquery, EnquerySchema } from 'src/models/Enquery.model';
+import { Budget, BudgetSchema } from 'src/models/Budget.model';
+import { Checklist, ChecklistSchema } from 'src/models/Checklist.model';
+import { Matchmaker, MatchmakerSchema } from 'src/models/Matchmaker.model';
 
 @Module({
   imports:[MongooseModule.forFeature([
@@ -31,6 +34,18 @@ import { Enquery, EnquerySchema } from 'src/models/Enquery.model';
     {
       name:Enquery.name,
       schema:EnquerySchema
+    },
+    {
+      name:Budget.name,
+      schema:BudgetSchema
+    },
+    {
+      name:Checklist.name,
+      schema:ChecklistSchema
+    },
+    {
+      name:Matchmaker.name,
+      schema:MatchmakerSchema
     }
   ]),
     MulterModule.register({

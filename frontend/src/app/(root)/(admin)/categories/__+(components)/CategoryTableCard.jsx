@@ -57,7 +57,7 @@ const CategoryTableCard = ({data,index}) => {
                 </TableCell>
         
                 <TableCell className="text-right">
-                <Link href={`/categories/${data._id}/edit`} className="px-4 py-2  cursor-pointer bg-teal-500 font-pregular text-white rounded-sm shadow ml-2">Edit</Link>
+                <Link href={`/categories/edit?slug=${encodeURIComponent(data._id)}`} className="px-4 py-2  cursor-pointer bg-teal-500 font-pregular text-white rounded-sm shadow ml-2">Edit</Link>
                     <button disabled={DeleteResponse.isLoading} onClick={DeleteHandler}   className="px-4 py-2 cursor-pointer bg-red-500 font-pregular text-white rounded-sm shadow ml-2">
                         {
                             DeleteResponse.isLoading? <CgSpinner className="animate-spin text-white"/> : 'Delete'

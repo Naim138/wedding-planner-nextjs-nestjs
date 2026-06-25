@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea"
 import CustomButton from '@/components/CustomButton';
 import { axiosClient } from '@/utils/AxiosClient';
 import { CgSpinner } from 'react-icons/cg';
+import { IoCallOutline, IoLocationOutline, IoMailOutline, IoPersonOutline } from 'react-icons/io5';
 import Image from 'next/image';
 import { useMainContext } from '@/context/MainContext';
 const ProfilePage = () => {
@@ -51,9 +52,8 @@ const ProfilePage = () => {
             landmark: yup.string().required('Landmark is required'),
             pincode: yup.string().required('Pin Code is required'),  
         }),
-        // validate with indian mobile no 
-        phone_no: yup.string().matches(/^[6-9]\d{9}$/, {
-            message: 'Invalid Indian Mobile Number',
+        phone_no: yup.string().matches(/^(\+?8801|01)[3-9]\d{8}$/, {
+            message: 'Invalid Bangladeshi mobile number',
             type: 'pattern',
         }).required("Mobile Number is Required")
 
@@ -82,14 +82,32 @@ const ProfilePage = () => {
     return (
         <>
 
-            <div className="mb-3 mx-auto   ">
-                <ImageUpdateComponent />
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                    <aside className="bg-white border border-zinc-200 rounded-md p-6 lg:sticky lg:top-24">
+                        <ImageUpdateComponent />
+                        <div className="mt-6 text-center">
+                            <h1 className="text-2xl font-psmbold text-zinc-950">{user.name || 'WeddingSphere Member'}</h1>
+                            <p className="text-sm text-zinc-500 mt-1 capitalize">{user.gender || 'Profile type not selected'}</p>
+                        </div>
+                        <div className="mt-6 space-y-3 text-sm">
+                            <ProfileInfo icon={<IoMailOutline />} label={user.email || 'No email found'} />
+                            <ProfileInfo icon={<IoCallOutline />} label={user.phone_no || 'Add a Bangladeshi mobile number'} />
+                            <ProfileInfo icon={<IoLocationOutline />} label={user.address?.street ? `${user.address.street}, ${user.address.landmark || ''}` : 'Add your city or area'} />
+                            <ProfileInfo icon={<IoPersonOutline />} label={user.bio || 'Write a short profile bio so vendors can understand your wedding needs.'} />
+                        </div>
+                    </aside>
 
-                <div className="w-full py-10 my-10 bg-white shadow">
+                <div className="w-full py-8 bg-white border border-zinc-200 rounded-md lg:col-span-2">
+                    <div className="w-[92%] mx-auto mb-6">
+                        <p className="text-sm font-pmedium text-logo uppercase tracking-wider">Profile section</p>
+                        <h2 className="text-2xl font-psmbold text-zinc-950 mt-1">Personal and contact details</h2>
+                        <p className="text-sm text-zinc-500 mt-2">Keep this complete so vendors can respond to booking requests quickly.</p>
+                    </div>
 
                     <Formik onSubmit={onBasicProfileUpdateHandler} validationSchema={validationSchema} initialValues={initialValues}>
                         {({ handleSubmit, values, setFieldValue }) => (
-                            <form onSubmit={handleSubmit} className=' w-[96%] lg:w-1/2 2xl:w-1/3 mx-auto '>
+                            <form onSubmit={handleSubmit} className='w-[92%] mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-4'>
                                 <div className="mb-3">
                                     <label htmlFor="name">Name <span className="text-red-500">*</span> </label>
                                     <Field name="name" id="name" type="text" className="w-full py-2 px-4 bg-transaparant border outline-none rounded-md" placeholder='Enter Your Name' />
@@ -105,7 +123,7 @@ const ProfilePage = () => {
 
                                 <div className="mb-3">
                                     <label htmlFor="phone_no">Mobile No <span className="text-red-500">*</span> </label>
-                                    <Field name="phone_no" id="phone_no" type="text" className="w-full py-2 px-4 bg-transaparant border outline-none rounded-md" placeholder='Enter Your Mobile No.' />
+                                    <Field name="phone_no" id="phone_no" type="text" className="w-full py-2 px-4 bg-transaparant border outline-none rounded-md" placeholder='01XXXXXXXXX' />
 
                                     <ErrorMessage className='text-sm text-red-500' name='phone_no' component={'p'} />
                                 </div>
@@ -123,7 +141,7 @@ const ProfilePage = () => {
                                     <ErrorMessage className='text-sm text-red-500' name='gender' component={'p'} />
                                 </div>
 
-                                <div className="mb-3">
+                                <div className="mb-3 md:col-span-2">
                                     <label htmlFor="bio">Bio <span className="text-red-500">*</span> </label>
 
                                     <Textarea
@@ -136,7 +154,7 @@ const ProfilePage = () => {
                                 </div>
 
                                         <div className="mb-3">
-                                    <label htmlFor="street">Street <span className="text-red-500">*</span> </label>
+                                    <label htmlFor="street">Area / Street <span className="text-red-500">*</span> </label>
                                     <Field
                                         id="street"
                                         placeholder="Enter Your Street"
@@ -148,7 +166,7 @@ const ProfilePage = () => {
                                         </div>
 
                                         <div className="mb-3">
-                                    <label htmlFor="pincode">Pin Code <span className="text-red-500">*</span> </label>
+                                    <label htmlFor="pincode">Postal Code <span className="text-red-500">*</span> </label>
                                     <Field
                                         id="pincode"
                                         placeholder="Enter Your Pin Code"
@@ -160,7 +178,7 @@ const ProfilePage = () => {
                                         </div>
 
                                         <div className="mb-3">
-                                    <label htmlFor="landmark">LandMark <span className="text-red-500">*</span> </label>
+                                    <label htmlFor="landmark">City / Landmark <span className="text-red-500">*</span> </label>
                                     <Field
                                         id="landmark"
                                         placeholder="Enter Your Landmark"
@@ -172,13 +190,14 @@ const ProfilePage = () => {
                                         </div>
 
 
-                                <div className="mb-3">
+                                <div className="mb-3 md:col-span-2">
                                     <CustomButton isLoading={loading} label={'Update Profile'} />
                                 </div>
                             </form>
                         )}
                     </Formik>
 
+                </div>
                 </div>
 
             </div>
@@ -188,6 +207,13 @@ const ProfilePage = () => {
 }
 
 export default ProfilePage
+
+const ProfileInfo = ({ icon, label }) => (
+    <div className="flex items-start gap-x-3 rounded-md bg-zinc-50 px-3 py-3 text-zinc-700">
+        <span className="mt-0.5 text-lg text-logo">{icon}</span>
+        <span className="leading-relaxed">{label}</span>
+    </div>
+)
 
 
 const ImageUpdateComponent = () => {
@@ -205,10 +231,8 @@ const ImageUpdateComponent = () => {
             form_data.append('image', file)
             const response = await axiosClient.put("/auth/update-avatar",form_data,{
                 headers:{
-                    'Content-Type':'multipart/form-data',
                     Authorization:`Bearer ${localStorage.getItem("token") || ''}`
                 },
-              
             })
 
             const data = await response.data 

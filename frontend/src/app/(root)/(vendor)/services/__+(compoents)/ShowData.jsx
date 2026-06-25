@@ -180,7 +180,7 @@ const [DeleteFn,DeleteFnResponse] = useDeleteServiceByIdMutation()
       </>
 }</TableCell>
 <TableCell className="text-right flex justify-end">
-    <Link href={`/services/edit/${cur._id}`} className="text-xl cursor-pointer px-4 py-4 rounded-sm bg-blue-700 text-white hover:bg-blue-800  ">
+    <Link href={`/services/edit?id=${encodeURIComponent(cur._id)}`} className="text-xl cursor-pointer px-4 py-4 rounded-sm bg-blue-700 text-white hover:bg-blue-800  ">
       <CiEdit/>
     </Link>
     <button disabled={DeleteFnResponse.isLoading} onClick={DeleteHandler} className="text-xl cursor-pointer px-4 py-4 rounded-sm bg-red-700 text-white hover:bg-red-800 ml-4 disabled:bg-red-900">

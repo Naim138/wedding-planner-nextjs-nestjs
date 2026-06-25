@@ -1,61 +1,59 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-// Define a service using a base URL and expected endpoints
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { dynamicBaseQuery } from '../../../config/api'
+
+const getToken = () => {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem('token')
+}
+
 export const VendorQuery = createApi({
-    reducerPath: 'VendorQuery',
-    tagTypes:['fetchAll','fetchById'],
-    baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_BASE_URI+"/vendor"  }),
-    endpoints: (build) => ({
-       
-        fetchAllEnquries:build.query({
-               query: ({status,search,from,to}) => ({
-                   url: `/enqueries?status=${status}&search=${search}&from=${from}&to=${to}`,
-               method: 'GET', 
-               
-               headers:{ 
-                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
-               }
-               }),
-               providesTags:['fetchAll']
+  reducerPath: 'VendorQuery',
 
-             
-             }),
-             fetchEnquryById:build.query({
-                query: (id) => ({
-                    url: `/enquery/${id}`,
-                method: 'GET', 
-                
-                headers:{ 
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                }
-                }),
-               providesTags:['fetchById']
+  tagTypes: ['fetchAll', 'fetchById'],
 
-              
-              }),
+  baseQuery: dynamicBaseQuery('/vendor'),
 
-              updateEnqueryById:build.mutation({
-                query: ({id,data}) => ({
-                    url: `/enquery/status/${id}`,
-                method: 'PUT', 
-                body:data,
-                
-                headers:{ 
-                  'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                }
-                }),
-        invalidatesTags:['fetchById']
+  endpoints: (build) => ({
 
-              
-              }),
-
-             
-            
+    fetchAllEnquries: build.query({
+      query: ({ status, search, from, to }) => ({
+        url: `/enqueries?status=${status}&search=${search}&from=${from}&to=${to}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }),
+      providesTags: ['fetchAll'],
     }),
-  })
-  export const { 
-    
-    useFetchAllEnquriesQuery,
-    useFetchEnquryByIdQuery,
-    useUpdateEnqueryByIdMutation
 
-  } = VendorQuery  
+    fetchEnquryById: build.query({
+      query: (id) => ({
+        url: `/enquery/${id}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }),
+      providesTags: ['fetchById'],
+    }),
+
+    updateEnqueryById: build.mutation({
+      query: ({ id, data }) => ({
+        url: `/enquery/status/${id}`,
+        method: 'PUT',
+        body: data,
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      }),
+      invalidatesTags: ['fetchById'],
+    }),
+
+  }),
+})
+
+export const {
+  useFetchAllEnquriesQuery,
+  useFetchEnquryByIdQuery,
+  useUpdateEnqueryByIdMutation
+} = VendorQuery
