@@ -3,20 +3,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from 'src/models/Category.model';
 import { CreateCategoryDTO,UpdateCategoryDTO } from '../dto/Category.dto';
-import cloudinary from 'src/utils/Cloudiary';
+import cloudinary, { isCloudinaryConfigured } from 'src/utils/Cloudiary';
 import {Generate} from 'src/utils/SlugData'
 @Injectable()
 export class CategoryService {
     constructor(@InjectModel(Category.name) private readonly CategoryModel:Model<Category>){}
     async createCategoryService(file: Express.Multer.File,user:string,data:CreateCategoryDTO){
 
-        // await this.CategoryModel.create({
+        if (!file?.path) {
+            throw new BadRequestException("Category image is required")
+        }
 
-        // })
+        if (!isCloudinaryConfigured) {
+            throw new BadRequestException("Cloudinary is not configured on the server")
+        }
 
-        const uploadResult = await cloudinary.uploader.upload(file.path,{
-            folder:'wedding-planner-admin-cateogry'
-        })
+        let uploadResult;
+        try {
+            uploadResult = await cloudinary.uploader.upload(file.path,{
+                folder:'wedding-planner-admin-category'
+            })
+        } catch (error) {
+            throw new BadRequestException(error?.message || "Category image upload failed")
+        }
 
         if(!uploadResult.secure_url){
             // bad request
@@ -94,9 +103,20 @@ export class CategoryService {
 
         // if image aayega tab
         if(file){
+           if (!isCloudinaryConfigured) {
+            throw new BadRequestException("Cloudinary is not configured on the server")
+           }
+
            await cloudinary.uploader.destroy(category.image.public_id)
 
-        const uploadResult = await cloudinary.uploader.upload(file.path)
+        let uploadResult;
+        try {
+            uploadResult = await cloudinary.uploader.upload(file.path,{
+                folder:'wedding-planner-admin-category'
+            })
+        } catch (error) {
+            throw new BadRequestException(error?.message || "Category image upload failed")
+        }
         updateObj['image'] = {
             image_uri:uploadResult.secure_url,
             public_id:uploadResult.public_id

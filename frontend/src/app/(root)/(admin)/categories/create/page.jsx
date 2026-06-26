@@ -13,7 +13,7 @@ import CustomButton from '@/components/CustomButton';
 import { useCreateCategoryMutation } from '@/app/redux/queries/AdminCategory';
 
 const CategoryCreatePage = () => {
-  const [CreateMutaitonFunction,CreateMutaitonResponse] = useCreateCategoryMutation()
+  const [createCategory, createCategoryResponse] = useCreateCategoryMutation()
 
   const initialValues = {
     name:'',
@@ -29,27 +29,19 @@ const CategoryCreatePage = () => {
 
   const onSubmitHandler = async(values,helpers)=>{
     try {
-      
-      // console.log(values)
-      // helpers.resetForm()
       const formData = new FormData()
       formData.append('name', values.name)
       formData.append('desc', values.desc)
       formData.append('image', values.image)
 
-      const {data,error} = await CreateMutaitonFunction(formData)
-      if(error) {
-        toast.error(error.message)
-        return
-      }
+      const data = await createCategory(formData).unwrap()
       toast.success(data.msg)
-      console.log(data)
 
       helpers.resetForm()
-
-
     } catch (error) {
-        toast.error(error.response.data.message || error.message)
+        toast.error(error?.data?.message || error?.message || 'Failed to add category')
+    } finally {
+      helpers.setSubmitting(false)
     }
   }
 
@@ -85,9 +77,10 @@ const CategoryCreatePage = () => {
              <label htmlFor="category_image">Category Image <span className="text-red-500">*</span></label>
 
               <ImagePicker setFileValue={setFieldValue}  values={values.image} />
+              <ErrorMessage className='text-red-500 text-sm ' component={'p'} name='image' />
              </div>
              <div className="mb-3">
-              <CustomButton type="submit" isLoading={CreateMutaitonResponse.isLoading} label={'Add Category'} />
+              <CustomButton type="submit" isLoading={createCategoryResponse.isLoading} label={'Add Category'} />
              </div>
 
              
@@ -111,7 +104,7 @@ const ImagePicker = ({setFileValue,values})=>{
     // setImage(acceptedFiles[0])
     setFileValue('image',acceptedFiles[0])
    }
-  }, [])
+  }, [setFileValue])
   const {getRootProps, getInputProps, isDragActive} = useDropzone({
     onDrop,
     maxFiles:1,
@@ -129,7 +122,7 @@ const ImagePicker = ({setFileValue,values})=>{
     {values? <>    
             <div className=" w-[90%] xl:1/2 2xl:w-1/3 mx-auto   py-3 flex items-center justify-center relative">
                 <img src={URL.createObjectURL(values)} alt="" />
-                <button onClick={onDeleteImage} className='text-4xl p-3 text-black bg-white rounded-full shadow absolute top-[12px] right-[-4px] cursor-pointer'><RxCross2/></button>
+                <button type="button" onClick={onDeleteImage} className='text-4xl p-3 text-black bg-white rounded-full shadow absolute top-[12px] right-[-4px] cursor-pointer'><RxCross2/></button>
             </div>
     </>: <div {...getRootProps()} className='w-full py-10 border border-dashed border-primary flex items-center justify-center flex-col'>
       <input {...getInputProps()} />
