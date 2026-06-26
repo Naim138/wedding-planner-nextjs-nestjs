@@ -127,7 +127,9 @@ const AdminMenus=()=>{
  return  <>
   <CustomMenuItem link={'/categories'} title={'Categories'}  Icon={GoGear }/>
   <CustomMenuItem link={'/categories/create'} title={'Create Category'}  Icon={IoAddCircleOutline }/>
-  
+  <CustomMenuItem link={'/admin/users'} title={'Manage Users'}  Icon={MdOutlinePerson}/>
+  <CustomMenuItem link={'/admin/services'} title={'Manage Services'}  Icon={GoGear}/>
+  <CustomMenuItem link={'/admin/enquiries'} title={'Manage Enquiries'}  Icon={MdOutlineContactSupport}/>
   </>
 }
 const VendorMenus=()=>{

@@ -8,6 +8,8 @@ import { AdminCategoryQuery } from "./queries/AdminCategory";
 import { VendorServiceQuery } from "./queries/VendorService";
 import { PublicServiceQuery } from "./queries/PublicQuery";
 import { VendorQuery } from "./queries/VendorQUery";
+import { AdminQuery } from "./queries/AdminQuery";
+
 export const store = configureStore({
     reducer:{
         [UserSlice.name]:UserSlice.reducer,
@@ -15,9 +17,16 @@ export const store = configureStore({
         [AdminCategoryQuery.reducerPath]:AdminCategoryQuery.reducer,
         [VendorServiceQuery.reducerPath]:VendorServiceQuery.reducer,
         [PublicServiceQuery.reducerPath]:PublicServiceQuery.reducer,
-        [VendorQuery.reducerPath]:VendorQuery.reducer
+        [VendorQuery.reducerPath]:VendorQuery.reducer,
+        [AdminQuery.reducerPath]:AdminQuery.reducer
     },
-    middleware:f=>f().concat(AdminCategoryQuery.middleware,VendorServiceQuery.middleware,PublicServiceQuery.middleware,VendorQuery.middleware)
+    middleware:f=>f().concat(
+        AdminCategoryQuery.middleware,
+        VendorServiceQuery.middleware,
+        PublicServiceQuery.middleware,
+        VendorQuery.middleware,
+        AdminQuery.middleware
+    )
 })
 
 setupListeners(store.dispatch)

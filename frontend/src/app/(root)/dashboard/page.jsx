@@ -132,9 +132,10 @@ const Dashboard = () => {
           <ActionPanel
             title="Admin Actions"
             actions={[
-              { href: '/categories/create', label: 'Create Category', Icon: IoAddCircleOutline },
               { href: '/categories', label: 'Manage Categories', Icon: MdCategory },
-              { href: '/service', label: 'Review Public Services', Icon: MdDashboard },
+              { href: '/admin/users', label: 'Manage Users & Vendors', Icon: CiUser },
+              { href: '/admin/services', label: 'Manage Services', Icon: RxGear },
+              { href: '/admin/enquiries', label: 'Manage Enquiries', Icon: CiSquareInfo },
             ]}
           />
           <InfoPanel
