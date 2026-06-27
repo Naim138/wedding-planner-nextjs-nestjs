@@ -149,14 +149,26 @@ export class PaymentService {
     const isSandbox = process.env.SSLCOMMERZ_IS_SANDBOX === "true";
     const sessionApi = process.env.SSLCOMMERZ_SESSION_API || "https://sandbox.sslcommerz.com/gwprocess/v4/api.php";
 
+    console.log("SSLCommerz Config:", { storeId, isSandbox, sessionApi });
+
     if (!storeId || !storePassword) {
+      console.error("SSLCommerz credentials missing");
       throw new BadRequestException("SSLCommerz is not configured on the server");
     }
 
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
     const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
 
+    console.log("URL Config:", { frontendUrl, backendUrl });
+
     const purposeDescription = data.purpose === "vendor_registration" ? "Vendor Registration Fee" : "Monthly Subscription";
+
+    const successUrl = `${frontendUrl}/payment/success?paymentId=${data.paymentId}`;
+    const failUrl = `${frontendUrl}/payment/cancel?paymentId=${data.paymentId}`;
+    const cancelUrl = `${frontendUrl}/payment/cancel?paymentId=${data.paymentId}`;
+    const ipnUrl = `${backendUrl}/api/v1/payment/sslcommerz/ipn`;
+
+    console.log("Callback URLs:", { successUrl, failUrl, cancelUrl, ipnUrl });
 
     const requestBody = {
       store_id: storeId,
@@ -164,10 +176,10 @@ export class PaymentService {
       total_amount: String(data.amount),
       currency: "BDT",
       tran_id: data.tranId,
-      success_url: `${frontendUrl}/payment/success?paymentId=${data.paymentId}`,
-      fail_url: `${frontendUrl}/payment/cancel?paymentId=${data.paymentId}`,
-      cancel_url: `${frontendUrl}/payment/cancel?paymentId=${data.paymentId}`,
-      ipn_url: `${backendUrl}/api/v1/payment/sslcommerz/ipn`,
+      success_url: successUrl,
+      fail_url: failUrl,
+      cancel_url: cancelUrl,
+      ipn_url: ipnUrl,
       product_name: purposeDescription,
       product_category: "Service",
       product_profile: "non-physical-goods",
@@ -183,6 +195,8 @@ export class PaymentService {
       value_b: data.purpose,
     };
 
+    console.log("SSLCommerz Request Body:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetch(sessionApi, {
       method: "POST",
       headers: {
@@ -190,6 +204,8 @@ export class PaymentService {
       },
       body: new URLSearchParams(requestBody).toString(),
     });
+
+    console.log("SSLCommerz Response Status:", response.status);
 
     const result = await response.json().catch(() => ({}));
     
@@ -199,6 +215,8 @@ export class PaymentService {
       console.error("SSLCommerz Error:", result?.failedreason || result?.message || "Unknown error");
       throw new BadRequestException(result?.failedreason || result?.message || "SSLCommerz session creation failed");
     }
+
+    console.log("SSLCommerz Gateway Page URL:", result.GatewayPageURL);
 
     return result;
   }

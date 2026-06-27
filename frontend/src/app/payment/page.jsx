@@ -37,13 +37,18 @@ const PaymentPage = () => {
                 result = await createSubscription().unwrap();
             }
 
+            console.log('Payment API Response:', result);
+
             if (result?.paymentUrl) {
-                // Open SSLCommerz in new tab to avoid popup blocking
-                window.open(result.paymentUrl, '_blank');
+                console.log('Redirecting to payment URL:', result.paymentUrl);
+                // Use direct redirect instead of window.open
+                window.location.href = result.paymentUrl;
             } else {
+                console.error('No payment URL in response');
                 toast.error('Failed to generate payment URL');
             }
         } catch (error) {
+            console.error('Payment initiation error:', error);
             toast.error(error?.data?.message || error?.message || 'Payment initiation failed');
         }
     };
