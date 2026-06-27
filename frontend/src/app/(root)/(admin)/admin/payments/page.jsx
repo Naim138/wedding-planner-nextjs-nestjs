@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import axiosClient from '@/utils/axiosClient';
-import { toast } from 'react-hot-toast';
+import { axiosClient } from '@/utils/AxiosClient';
+import { toast } from 'react-toastify';
 
 const AdminPaymentsPage = () => {
   const [payments, setPayments] = useState([]);
