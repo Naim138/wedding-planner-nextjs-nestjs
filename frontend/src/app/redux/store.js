@@ -9,6 +9,7 @@ import { VendorServiceQuery } from "./queries/VendorService";
 import { PublicServiceQuery } from "./queries/PublicQuery";
 import { VendorQuery } from "./queries/VendorQUery";
 import { AdminQuery } from "./queries/AdminQuery";
+import { PaymentQuery } from "./queries/PaymentQuery";
 
 export const store = configureStore({
     reducer:{
@@ -18,14 +19,16 @@ export const store = configureStore({
         [VendorServiceQuery.reducerPath]:VendorServiceQuery.reducer,
         [PublicServiceQuery.reducerPath]:PublicServiceQuery.reducer,
         [VendorQuery.reducerPath]:VendorQuery.reducer,
-        [AdminQuery.reducerPath]:AdminQuery.reducer
+        [AdminQuery.reducerPath]:AdminQuery.reducer,
+        [PaymentQuery.reducerPath]:PaymentQuery.reducer
     },
     middleware:f=>f().concat(
         AdminCategoryQuery.middleware,
         VendorServiceQuery.middleware,
         PublicServiceQuery.middleware,
         VendorQuery.middleware,
-        AdminQuery.middleware
+        AdminQuery.middleware,
+        PaymentQuery.middleware
     )
 })
 

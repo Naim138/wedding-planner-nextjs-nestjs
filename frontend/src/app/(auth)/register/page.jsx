@@ -45,8 +45,13 @@ const RegisterPage = () => {
                 toast.success(data.msg)
                 localStorage.setItem("token",data.token)
                 await fetchUserProfile()
-                router.push("/dashboard")
-
+                
+                // Redirect vendors to payment page
+                if (values.role === 'vendor') {
+                    router.push("/payment");
+                } else {
+                    router.push("/dashboard");
+                }
 
             } catch (error) {
                 let errMsg = error?.response?.data?.message || error?.message || "Registration failed";

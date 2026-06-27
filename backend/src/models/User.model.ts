@@ -24,6 +24,18 @@ export class User{
 
     @Prop({default:'',type:String})
     avatar:string
+
+    @Prop({type:String,enum:['not_required','pending','active','expired'],default:'not_required'})
+    vendorPaymentStatus:string
+
+    @Prop({type:Boolean,default:false})
+    vendorRegistrationPaid:boolean
+
+    @Prop({type:String,enum:['inactive','active'],default:'inactive'})
+    vendorSubscriptionStatus:string
+
+    @Prop({type:Date,default:null})
+    vendorSubscriptionExpiresAt:Date
 }
 
 

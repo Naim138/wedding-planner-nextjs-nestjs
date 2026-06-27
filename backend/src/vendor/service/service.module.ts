@@ -6,6 +6,7 @@ import { diskStorage } from 'multer';
 import { MongooseModule } from '@nestjs/mongoose';
 import {Service,ServiceSchema} from 'src/models/Service.model'
 import {Category,CategorySchema} from 'src/models/Category.model'
+import { User, UserSchema } from 'src/models/User.model';
 @Module({
   imports:[
     MongooseModule.forFeature([
@@ -16,6 +17,10 @@ import {Category,CategorySchema} from 'src/models/Category.model'
           {
             name: Category.name,
             schema: CategorySchema
+          },
+          {
+            name: User.name,
+            schema: UserSchema
           }
           // {
           //   // name:User.name

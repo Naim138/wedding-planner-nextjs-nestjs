@@ -12,6 +12,7 @@ import { Enquery, EnquerySchema } from 'src/models/Enquery.model';
 import { Budget, BudgetSchema } from 'src/models/Budget.model';
 import { Checklist, ChecklistSchema } from 'src/models/Checklist.model';
 import { Matchmaker, MatchmakerSchema } from 'src/models/Matchmaker.model';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports:[MongooseModule.forFeature([
@@ -48,6 +49,7 @@ import { Matchmaker, MatchmakerSchema } from 'src/models/Matchmaker.model';
       schema:MatchmakerSchema
     }
   ]),
+  PaymentModule,
     MulterModule.register({
      storage:diskStorage({
       filename(req, file, callback) {

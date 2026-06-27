@@ -9,6 +9,7 @@ import { PublicModule } from './public/public.module';
 import { ChecklistModule } from './checklist/checklist.module';
 import { BudgetModule } from './budget/budget.module';
 import { MatchmakerModule } from './matchmaker/matchmaker.module';
+import { PaymentModule } from './payment/payment.module';
 
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
@@ -39,6 +40,7 @@ import { ConfigModule } from '@nestjs/config';
     ChecklistModule,
     BudgetModule,
     MatchmakerModule,
+    PaymentModule,
   ],
 
   controllers: [AppController],

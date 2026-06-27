@@ -119,11 +119,7 @@ const Dashboard = () => {
               { href: '/queries', label: 'Attend Booking Requests', Icon: CiSquareInfo },
             ]}
           />
-          <InfoPanel
-            title="Booking Tip"
-            icon={<IoLocationOutline />}
-            text="Keep service location, phone number, gallery, price, and package sections complete so couples can book with confidence."
-          />
+          <PaymentStatusPanel user={user} />
         </section>
       )}
 
@@ -208,3 +204,75 @@ const InfoPanel = ({ title, text, icon }) => (
     <p className="mt-2 text-sm text-zinc-500 leading-relaxed">{text}</p>
   </div>
 );
+
+const PaymentStatusPanel = ({ user }) => {
+  const isRegistrationPaid = user?.vendorRegistrationPaid;
+  const subscriptionStatus = user?.vendorSubscriptionStatus;
+  const subscriptionExpiresAt = user?.vendorSubscriptionExpiresAt
+    ? new Date(user.vendorSubscriptionExpiresAt).toLocaleDateString()
+    : null;
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'expired':
+        return 'bg-red-50 text-red-700 border-red-200';
+      case 'inactive':
+      default:
+        return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    }
+  };
+
+  return (
+    <div className="bg-white border border-zinc-200 rounded-md p-6">
+      <h3 className="text-lg font-psmbold text-zinc-950 mb-4">Payment Status</h3>
+      
+      <div className="space-y-4">
+        <div className="flex items-center justify-between p-3 rounded-md border border-zinc-200">
+          <div>
+            <p className="text-sm font-pmedium text-zinc-900">Registration Fee (৳500)</p>
+            <p className="text-xs text-zinc-500">One-time payment</p>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-xs font-pmedium ${
+            isRegistrationPaid 
+              ? 'bg-green-50 text-green-700 border border-green-200' 
+              : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+          }`}>
+            {isRegistrationPaid ? 'Paid' : 'Pending'}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between p-3 rounded-md border border-zinc-200">
+          <div>
+            <p className="text-sm font-pmedium text-zinc-900">Monthly Subscription (৳1000)</p>
+            <p className="text-xs text-zinc-500">
+              {subscriptionExpiresAt ? `Expires: ${subscriptionExpiresAt}` : 'Not active'}
+            </p>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-xs font-pmedium ${getStatusColor(subscriptionStatus)}`}>
+            {subscriptionStatus === 'active' ? 'Active' : subscriptionStatus === 'expired' ? 'Expired' : 'Inactive'}
+          </span>
+        </div>
+
+        {!isRegistrationPaid && (
+          <Link 
+            href="/payment" 
+            className="block w-full text-center mt-4 rounded-md border border-logo bg-logo/5 px-4 py-3 text-sm font-pmedium text-logo hover:bg-logo hover:text-white transition-colors"
+          >
+            Complete Registration Payment
+          </Link>
+        )}
+
+        {isRegistrationPaid && subscriptionStatus !== 'active' && (
+          <Link 
+            href="/payment" 
+            className="block w-full text-center mt-4 rounded-md border border-logo bg-logo/5 px-4 py-3 text-sm font-pmedium text-logo hover:bg-logo hover:text-white transition-colors"
+          >
+            Renew Subscription
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+};

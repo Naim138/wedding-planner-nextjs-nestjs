@@ -13,6 +13,7 @@ import { Enquery } from 'src/models/Enquery.model';
 import { Budget } from 'src/models/Budget.model';
 import { Checklist } from 'src/models/Checklist.model';
 import { Matchmaker } from 'src/models/Matchmaker.model';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,8 @@ export class AuthService {
             @InjectModel(Checklist.name) private readonly ChecklistModel:Model<Checklist>,
             @InjectModel(Matchmaker.name) private readonly MatchmakerModel:Model<Matchmaker>,
     
-    private jwtService: JwtService){}
+    private jwtService: JwtService,
+    private readonly paymentService: PaymentService){}
     
     async registerUser(data:RegisterUserDTO){
 
@@ -37,8 +39,18 @@ export class AuthService {
             name:data.name,
             email:data.email,
             password:data.password,
-            role:data.role
+            role:data.role,
+            vendorPaymentStatus:data.role === 'vendor' ? 'pending' : 'not_required',
+            vendorSubscriptionStatus:data.role === 'vendor' ? 'inactive' : 'active',
         })
+
+        if(data.role === 'vendor'){
+            const payment = await this.paymentService.createVendorRegistrationPayment(String(user._id))
+            return {
+                msg:"Vendor registration created. Please pay 500 BDT to activate your vendor account.",
+                ...payment
+            }
+        }
 
         const token = this.jwtService.sign({userId:user._id,type:data.role},{
             expiresIn:'30d'
@@ -151,8 +163,9 @@ export class AuthService {
             service: { $in: serviceIds }
            })
 
-
-
+           data['vendor_payment_status'] = user?.vendorPaymentStatus
+           data['vendor_subscription_status'] = user?.vendorSubscriptionStatus
+           data['vendor_subscription_expires_at'] = user?.vendorSubscriptionExpiresAt
 
         }
         if(role=='admin'){
