@@ -29,25 +29,37 @@ export class PaymentService {
   }
 
   async handleGatewayCallback(payload: Record<string, unknown>) {
+    console.log("Payment Callback Received:", JSON.stringify(payload, null, 2));
+    
     const status = String(payload.status || "").toLowerCase();
     const tranId = String(payload.tran_id || payload.transaction_id || "");
     const valId = String(payload.val_id || "");
 
+    console.log("Parsed Data:", { status, tranId, valId });
+
     if (!tranId) {
+      console.error("Transaction ID not found in callback");
       throw new BadRequestException("Transaction ID not found in callback");
     }
 
     const payment = await this.paymentModel.findOne({ gatewayTransactionId: tranId });
-    if (!payment) throw new NotFoundException("Payment not found");
+    if (!payment) {
+      console.error("Payment not found for tranId:", tranId);
+      throw new NotFoundException("Payment not found");
+    }
+
+    console.log("Payment found:", payment._id, "Current status:", payment.status);
 
     payment.callbackPayload = payload;
 
     if (status === "valid" || status === "success") {
+      console.log("Payment successful, updating status to paid");
       payment.status = "paid";
       payment.paidAt = new Date();
       payment.gatewayTransactionId = tranId;
       await payment.save();
       await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
+      console.log("Payment activated successfully");
       return { msg: "Payment verified", payment };
     }
 
@@ -58,6 +70,7 @@ export class PaymentService {
     }
 
     await payment.save();
+    console.log("Payment status updated to:", payment.status);
     return { msg: "Payment callback received", payment };
   }
 

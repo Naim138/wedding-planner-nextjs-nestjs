@@ -40,14 +40,22 @@ export class PaymentController {
     @Query("paymentId") paymentId: string,
     @Res() res,
   ) {
-    await this.paymentService.handleGatewayCallback(data);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const tranId = String(data.tran_id || "");
-    const status = String(data.status || "VALID");
-    const valId = String(data.val_id || "");
-    return res.redirect(
-      `${frontendUrl}/payment/success?paymentId=${paymentId}&tran_id=${tranId}&status=${status}&val_id=${valId}`,
-    );
+    console.log("SSLCommerz Success Callback Hit:", { paymentId, data });
+    try {
+      await this.paymentService.handleGatewayCallback(data);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const tranId = String(data.tran_id || "");
+      const status = String(data.status || "VALID");
+      const valId = String(data.val_id || "");
+      console.log("Redirecting to frontend:", { frontendUrl, paymentId, tranId, status });
+      return res.redirect(
+        `${frontendUrl}/payment/success?paymentId=${paymentId}&tran_id=${tranId}&status=${status}&val_id=${valId}`,
+      );
+    } catch (error) {
+      console.error("Error in success callback:", error);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      return res.redirect(`${frontendUrl}/payment/error?message=${encodeURIComponent(error.message)}`);
+    }
   }
 
   @Post("/sslcommerz/fail")
@@ -56,13 +64,20 @@ export class PaymentController {
     @Query("paymentId") paymentId: string,
     @Res() res,
   ) {
-    await this.paymentService.handleGatewayCallback(data);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const tranId = String(data.tran_id || "");
-    const status = String(data.status || "FAILED");
-    return res.redirect(
-      `${frontendUrl}/payment/cancel?paymentId=${paymentId}&tran_id=${tranId}&status=${status}`,
-    );
+    console.log("SSLCommerz Fail Callback Hit:", { paymentId, data });
+    try {
+      await this.paymentService.handleGatewayCallback(data);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const tranId = String(data.tran_id || "");
+      const status = String(data.status || "FAILED");
+      return res.redirect(
+        `${frontendUrl}/payment/cancel?paymentId=${paymentId}&tran_id=${tranId}&status=${status}`,
+      );
+    } catch (error) {
+      console.error("Error in fail callback:", error);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      return res.redirect(`${frontendUrl}/payment/error?message=${encodeURIComponent(error.message)}`);
+    }
   }
 
   @Post("/sslcommerz/cancel")
@@ -71,12 +86,19 @@ export class PaymentController {
     @Query("paymentId") paymentId: string,
     @Res() res,
   ) {
-    await this.paymentService.handleGatewayCallback(data);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const tranId = String(data.tran_id || "");
-    const status = String(data.status || "CANCELLED");
-    return res.redirect(
-      `${frontendUrl}/payment/cancel?paymentId=${paymentId}&tran_id=${tranId}&status=${status}`,
-    );
+    console.log("SSLCommerz Cancel Callback Hit:", { paymentId, data });
+    try {
+      await this.paymentService.handleGatewayCallback(data);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const tranId = String(data.tran_id || "");
+      const status = String(data.status || "CANCELLED");
+      return res.redirect(
+        `${frontendUrl}/payment/cancel?paymentId=${paymentId}&tran_id=${tranId}&status=${status}`,
+      );
+    } catch (error) {
+      console.error("Error in cancel callback:", error);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      return res.redirect(`${frontendUrl}/payment/error?message=${encodeURIComponent(error.message)}`);
+    }
   }
 }
