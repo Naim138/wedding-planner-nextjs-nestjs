@@ -193,7 +193,10 @@ export class PaymentService {
 
     const result = await response.json().catch(() => ({}));
     
+    console.log("SSLCommerz Response:", JSON.stringify(result, null, 2));
+    
     if (!response.ok || result.status !== "SUCCESS") {
+      console.error("SSLCommerz Error:", result?.failedreason || result?.message || "Unknown error");
       throw new BadRequestException(result?.failedreason || result?.message || "SSLCommerz session creation failed");
     }
 
