@@ -65,7 +65,7 @@ export class ServiceService {
 
     async getAllCategoriesService(){
 
-        const categories = await this.CategoryModel.find({isPublic:true})
+        const categories = await this.CategoryModel.find({})
         .select("name")
         return categories
 
