@@ -28,37 +28,51 @@ export class AuthService {
     private jwtService: JwtService){}
     
     async registerUser(data:RegisterUserDTO){
+        try {
+            console.log("Registration attempt for email:", data.email, "role:", data.role);
+            
+            const checkUser = await this.UserModel.findOne({email:data.email.toLowerCase()})
+            if(checkUser){
+                console.log("User already exists:", data.email);
+                throw new BadRequestException("User Already Exist with this Email")
+            }
+            
+            console.log("Creating user with data:", { name: data.name, email: data.email, role: data.role });
+            
+            const user=  await this.UserModel.create({
+                name:data.name,
+                email:data.email,
+                password:data.password,
+                role:data.role,
+                vendorPaymentStatus:data.role === 'vendor' ? 'pending' : 'not_required',
+                vendorSubscriptionStatus:data.role === 'vendor' ? 'inactive' : 'active',
+            })
 
-        const checkUser = await this.UserModel.findOne({email:data.email.toLowerCase()})
-        if(checkUser){
-            throw new BadRequestException("User Already Exist with this Email")
-        }
-      const user=  await this.UserModel.create({
-            name:data.name,
-            email:data.email,
-            password:data.password,
-            role:data.role,
-            vendorPaymentStatus:data.role === 'vendor' ? 'pending' : 'not_required',
-            vendorSubscriptionStatus:data.role === 'vendor' ? 'inactive' : 'active',
-        })
+            console.log("User created successfully:", user._id);
 
-        if(data.role === 'vendor'){
+            if(data.role === 'vendor'){
+                const token = this.jwtService.sign({userId:user._id,type:data.role},{
+                    expiresIn:'30d'
+                })
+                console.log("Vendor token generated");
+                return {
+                    msg:"Vendor registration created. Please complete your payment to activate your vendor account.",
+                    token
+                }
+            }
+
             const token = this.jwtService.sign({userId:user._id,type:data.role},{
                 expiresIn:'30d'
             })
+
+            console.log("User token generated");
             return {
-                msg:"Vendor registration created. Please complete your payment to activate your vendor account.",
+                msg:"User Register Successfully",
                 token
             }
-        }
-
-        const token = this.jwtService.sign({userId:user._id,type:data.role},{
-            expiresIn:'30d'
-        })
-
-        return {
-            msg:"User Register Successfully",
-            token
+        } catch (error) {
+            console.error("Registration error:", error);
+            throw error;
         }
     }
 
