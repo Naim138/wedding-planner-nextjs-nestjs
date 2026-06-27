@@ -13,7 +13,6 @@ import { Enquery } from 'src/models/Enquery.model';
 import { Budget } from 'src/models/Budget.model';
 import { Checklist } from 'src/models/Checklist.model';
 import { Matchmaker } from 'src/models/Matchmaker.model';
-import { PaymentService } from 'src/payment/payment.service';
 
 @Injectable()
 export class AuthService {
@@ -26,8 +25,7 @@ export class AuthService {
             @InjectModel(Checklist.name) private readonly ChecklistModel:Model<Checklist>,
             @InjectModel(Matchmaker.name) private readonly MatchmakerModel:Model<Matchmaker>,
     
-    private jwtService: JwtService,
-    private readonly paymentService: PaymentService){}
+    private jwtService: JwtService){}
     
     async registerUser(data:RegisterUserDTO){
 
@@ -45,14 +43,12 @@ export class AuthService {
         })
 
         if(data.role === 'vendor'){
-            const payment = await this.paymentService.createVendorRegistrationPayment(String(user._id))
+            const token = this.jwtService.sign({userId:user._id,type:data.role},{
+                expiresIn:'30d'
+            })
             return {
-                msg:"Vendor registration created. Please pay 500 BDT to activate your vendor account.",
-                paymentId: payment.paymentId,
-                amount: payment.amount,
-                currency: payment.currency,
-                purpose: payment.purpose,
-                paymentUrl: payment.paymentUrl
+                msg:"Vendor registration created. Please complete your payment to activate your vendor account.",
+                token
             }
         }
 
