@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards, Res, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, UseGuards, Res, Query, Param, Patch } from "@nestjs/common";
 import { AuthGuard } from "src/auth/auth.guard";
 import { PaymentService } from "./payment.service";
 
@@ -22,6 +22,39 @@ export class PaymentController {
   @UseGuards(AuthGuard)
   async getMyPayments(@Req() req) {
     return this.paymentService.getMyPayments(req.user);
+  }
+
+  @Get("/all-payments")
+  @UseGuards(AuthGuard)
+  async getAllPayments(@Req() req) {
+    // Check if user is admin
+    const user = await req.user;
+    if (user.role !== "admin") {
+      throw new Error("Only admins can view all payments");
+    }
+    return this.paymentService.getAllPayments();
+  }
+
+  @Patch("/:paymentId/approve")
+  @UseGuards(AuthGuard)
+  async approvePayment(@Param("paymentId") paymentId: string, @Req() req) {
+    // Check if user is admin
+    const user = await req.user;
+    if (user.role !== "admin") {
+      throw new Error("Only admins can approve payments");
+    }
+    return this.paymentService.approvePayment(paymentId);
+  }
+
+  @Patch("/:paymentId/reject")
+  @UseGuards(AuthGuard)
+  async rejectPayment(@Param("paymentId") paymentId: string, @Req() req) {
+    // Check if user is admin
+    const user = await req.user;
+    if (user.role !== "admin") {
+      throw new Error("Only admins can reject payments");
+    }
+    return this.paymentService.rejectPayment(paymentId);
   }
 
   @Post("/sslcommerz/ipn")

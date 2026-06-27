@@ -53,14 +53,13 @@ export class PaymentService {
     payment.callbackPayload = payload;
 
     if (status === "valid" || status === "success") {
-      console.log("Payment successful, updating status to paid");
-      payment.status = "paid";
+      console.log("Payment successful, updating status to pending_approval");
+      payment.status = "pending_approval";
       payment.paidAt = new Date();
       payment.gatewayTransactionId = tranId;
       await payment.save();
-      await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
-      console.log("Payment activated successfully");
-      return { msg: "Payment verified", payment };
+      console.log("Payment set to pending_approval, waiting for admin approval");
+      return { msg: "Payment received, waiting for admin approval", payment };
     }
 
     if (status === "cancelled" || status === "cancel") {
@@ -94,22 +93,21 @@ export class PaymentService {
     
     console.log("Payment found:", payment._id, "Current status:", payment.status);
 
-    // If already paid, no need to process again
-    if (payment.status === "paid") {
-      console.log("Payment already paid, skipping");
+    // If already paid or pending_approval, no need to process again
+    if (payment.status === "paid" || payment.status === "pending_approval") {
+      console.log("Payment already processed, skipping");
       return { msg: "Payment already processed", payment };
     }
 
     // Update status based on IPN status
     if (status === "VALID") {
-      console.log("IPN status is VALID, updating payment to paid");
-      payment.status = "paid";
+      console.log("IPN status is VALID, updating payment to pending_approval");
+      payment.status = "pending_approval";
       payment.paidAt = new Date();
       payment.callbackPayload = payload;
       await payment.save();
-      await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
-      console.log("Payment status updated to paid via IPN");
-      return { msg: "IPN validated and payment processed", payment };
+      console.log("Payment set to pending_approval via IPN, waiting for admin approval");
+      return { msg: "IPN validated, payment pending approval", payment };
     }
 
     if (status === "FAILED") {
@@ -142,6 +140,45 @@ export class PaymentService {
 
   async getMyPayments(userId: string) {
     return this.paymentModel.find({ user: userId }).sort({ createdAt: -1 });
+  }
+
+  async getAllPayments() {
+    return this.paymentModel.find().sort({ createdAt: -1 }).populate('user', 'name email role');
+  }
+
+  async approvePayment(paymentId: string) {
+    const payment = await this.paymentModel.findById(paymentId);
+    if (!payment) {
+      throw new NotFoundException("Payment not found");
+    }
+
+    if (payment.status !== "pending_approval") {
+      throw new BadRequestException("Payment is not pending approval");
+    }
+
+    payment.status = "paid";
+    await payment.save();
+    await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
+    
+    console.log("Payment approved and activated:", paymentId);
+    return { msg: "Payment approved", payment };
+  }
+
+  async rejectPayment(paymentId: string) {
+    const payment = await this.paymentModel.findById(paymentId);
+    if (!payment) {
+      throw new NotFoundException("Payment not found");
+    }
+
+    if (payment.status !== "pending_approval") {
+      throw new BadRequestException("Payment is not pending approval");
+    }
+
+    payment.status = "rejected";
+    await payment.save();
+    
+    console.log("Payment rejected:", paymentId);
+    return { msg: "Payment rejected", payment };
   }
 
   private async createPayment(userId: string, purpose: PaymentPurpose, amount: number) {
