@@ -40,7 +40,8 @@ export class CategoryService {
             user,
             name:data.name,
             desc:data.desc,
-            slug:Generate(data.name)
+            slug:Generate(data.name),
+            isPublic: true
 
 
         })
