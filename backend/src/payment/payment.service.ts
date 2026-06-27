@@ -143,7 +143,13 @@ export class PaymentService {
   }
 
   async getAllPayments() {
-    return this.paymentModel.find().sort({ createdAt: -1 }).populate('user', 'name email role');
+    try {
+      const payments = await this.paymentModel.find().sort({ createdAt: -1 }).populate('user', 'name email role');
+      return payments;
+    } catch (error) {
+      console.error('Error fetching all payments:', error);
+      throw error;
+    }
   }
 
   async approvePayment(paymentId: string) {

@@ -27,12 +27,23 @@ export class PaymentController {
   @Get("/all-payments")
   @UseGuards(AuthGuard)
   async getAllPayments(@Req() req) {
-    // Check if user is admin
-    const user = req.user;
-    if (user.role !== "admin") {
-      throw new Error("Only admins can view all payments");
+    try {
+      // Check if user is admin
+      const user = req.user;
+      console.log("Fetching all payments for user:", user.email, "role:", user.role);
+      
+      if (user.role !== "admin") {
+        console.error("Non-admin user tried to access all payments:", user.email);
+        throw new Error("Only admins can view all payments");
+      }
+      
+      const payments = await this.paymentService.getAllPayments();
+      console.log("Successfully fetched payments, count:", payments.length);
+      return payments;
+    } catch (error) {
+      console.error("Error in getAllPayments:", error);
+      throw error;
     }
-    return this.paymentService.getAllPayments();
   }
 
   @Patch("/:paymentId/activate")
