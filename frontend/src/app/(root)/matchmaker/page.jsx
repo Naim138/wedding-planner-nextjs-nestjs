@@ -11,6 +11,7 @@ const MatchmakerPage = () => {
   const [loading, setLoading] = useState(true);
   const [matching, setMatching] = useState(false);
   const [currentMatch, setCurrentMatch] = useState(null);
+  const [activeTab, setActiveTab] = useState('preferences'); // 'preferences' or 'real-persons'
 
   // Forms state
   const [p1Name, setP1Name] = useState('Tanvir Rahman');
@@ -26,6 +27,22 @@ const MatchmakerPage = () => {
   const [p2Budget, setP2Budget] = useState('Premium');
   const [p2Focus, setP2Focus] = useState('Decor');
   const [p2Guests, setP2Guests] = useState('Family (300-600)');
+
+  // Real persons compatibility form state
+  const [realP1Name, setRealP1Name] = useState('');
+  const [realP1Age, setRealP1Age] = useState('');
+  const [realP1Profession, setRealP1Profession] = useState('');
+  const [realP1Hobbies, setRealP1Hobbies] = useState('');
+  const [realP1Personality, setRealP1Personality] = useState('');
+  const [realP1Values, setRealP1Values] = useState('');
+
+  const [realP2Name, setRealP2Name] = useState('');
+  const [realP2Age, setRealP2Age] = useState('');
+  const [realP2Profession, setRealP2Profession] = useState('');
+  const [realP2Hobbies, setRealP2Hobbies] = useState('');
+  const [realP2Personality, setRealP2Personality] = useState('');
+  const [realP2Values, setRealP2Values] = useState('');
+  const [realMatchResult, setRealMatchResult] = useState(null);
 
   const fetchHistory = async () => {
     try {
@@ -91,6 +108,123 @@ const MatchmakerPage = () => {
     }
   };
 
+  const handleRealPersonMatch = (e) => {
+    e.preventDefault();
+    
+    // Calculate real persons compatibility score based on personality, values, hobbies, profession
+    let personalityScore = 0;
+    let valuesScore = 0;
+    let hobbiesScore = 0;
+    let professionScore = 0;
+    let ageScore = 0;
+
+    const matches = [];
+    const compromises = [];
+
+    // Personality compatibility
+    const personalityTraits = {
+      'Introvert': ['Introvert', 'Ambivert'],
+      'Extrovert': ['Extrovert', 'Ambivert'],
+      'Ambivert': ['Introvert', 'Extrovert', 'Ambivert']
+    };
+
+    if (realP1Personality === realP2Personality) {
+      personalityScore = 100;
+      matches.push(`Both have ${realP1Personality} personality type - great natural compatibility!`);
+    } else if (personalityTraits[realP1Personality]?.includes(realP2Personality)) {
+      personalityScore = 75;
+      matches.push(`${realP1Personality} and ${realP2Personality} personalities can complement each other well.`);
+    } else {
+      personalityScore = 50;
+      compromises.push(`Different personality types (${realP1Personality} vs ${realP2Personality}) may require understanding and patience.`);
+    }
+
+    // Values compatibility
+    const valueKeywords1 = realP1Values.toLowerCase().split(',').map(v => v.trim());
+    const valueKeywords2 = realP2Values.toLowerCase().split(',').map(v => v.trim());
+    const commonValues = valueKeywords1.filter(v => valueKeywords2.includes(v));
+    
+    if (commonValues.length > 0) {
+      valuesScore = Math.min(100, 50 + commonValues.length * 25);
+      matches.push(`Shared values: ${commonValues.join(', ')}`);
+    } else {
+      valuesScore = 40;
+      compromises.push('Different life values - important to discuss core beliefs and priorities.');
+    }
+
+    // Hobbies compatibility
+    const hobbyKeywords1 = realP1Hobbies.toLowerCase().split(',').map(h => h.trim());
+    const hobbyKeywords2 = realP2Hobbies.toLowerCase().split(',').map(h => h.trim());
+    const commonHobbies = hobbyKeywords1.filter(h => hobbyKeywords2.includes(h));
+    
+    if (commonHobbies.length > 0) {
+      hobbiesScore = Math.min(100, 50 + commonHobbies.length * 25);
+      matches.push(`Common interests: ${commonHobbies.join(', ')}`);
+    } else {
+      hobbiesScore = 30;
+      compromises.push('Different hobbies - opportunity to explore new activities together.');
+    }
+
+    // Profession compatibility
+    if (realP1Profession === realP2Profession) {
+      professionScore = 100;
+      matches.push(`Both work in ${realP1Profession} - shared professional understanding!`);
+    } else {
+      professionScore = 60;
+      matches.push(`Different professions (${realP1Profession} and ${realP2Profession}) can bring diverse perspectives.`);
+    }
+
+    // Age compatibility
+    const age1 = parseInt(realP1Age)
+    const age2 = parseInt(realP2Age)
+    const ageDiff = Math.abs(age1 - age2);
+    
+    if (ageDiff <= 2) {
+      ageScore = 100;
+      matches.push('Similar age groups - likely in similar life stages.');
+    } else if (ageDiff <= 5) {
+      ageScore = 80;
+      matches.push('Small age difference - generally compatible life stages.');
+    } else if (ageDiff <= 10) {
+      ageScore = 60;
+      compromises.push('Moderate age difference - may have different life experiences.');
+    } else {
+      ageScore = 40;
+      compromises.push('Significant age difference - important to discuss life goals and timelines.');
+    }
+
+    const overallScore = Math.round(
+      (personalityScore * 0.35) + 
+      (valuesScore * 0.30) + 
+      (hobbiesScore * 0.20) + 
+      (professionScore * 0.10) + 
+      (ageScore * 0.05)
+    );
+
+    // Generate recommendation
+    let recommendation = '';
+    if (overallScore >= 80) {
+      recommendation = `Excellent compatibility! ${realP1Name} and ${realP2Name} share strong foundations in personality, values, and interests. This relationship has great potential for long-term success. Focus on nurturing your shared interests while respecting individual differences.`;
+    } else if (overallScore >= 60) {
+      recommendation = `Good compatibility with room to grow. ${realP1Name} and ${realP2Name} have several areas of alignment. Focus on building communication around your differences and celebrating your common interests. With effort and understanding, this can be a strong partnership.`;
+    } else if (overallScore >= 40) {
+      recommendation = `Moderate compatibility requiring effort. ${realP1Name} and ${realP2Name} have some differences that may need attention. Open communication about values, life goals, and expectations will be crucial. Consider pre-marital counseling to strengthen your foundation.`;
+    } else {
+      recommendation = `Significant differences exist that may require serious consideration. ${realP1Name} and ${realP2Name} should have honest conversations about core values, life goals, and expectations. Professional counseling may help determine if these differences can be worked through.`;
+    }
+
+    setRealMatchResult({
+      partner1: { name: realP1Name, age: realP1Age, profession: realP1Profession, personality: realP1Personality },
+      partner2: { name: realP2Name, age: realP2Age, profession: realP2Profession, personality: realP2Personality },
+      compatibilityScore: overallScore,
+      matches,
+      compromises,
+      recommendation
+    });
+
+    toast.success("Real persons compatibility calculated!");
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <BreadCrums text="AI Wedding Matchmaker" />
@@ -102,14 +236,41 @@ const MatchmakerPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-6">
+          {/* Tab Navigation */}
+          <div className="lg:col-span-3">
+            <div className="bg-white rounded-2xl border border-zinc-150 p-2 shadow-sm flex gap-2">
+              <button
+                onClick={() => setActiveTab('preferences')}
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${
+                  activeTab === 'preferences'
+                    ? 'bg-logo text-white shadow-md'
+                    : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100'
+                }`}
+              >
+                Wedding Preferences Match
+              </button>
+              <button
+                onClick={() => setActiveTab('real-persons')}
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all ${
+                  activeTab === 'real-persons'
+                    ? 'bg-logo text-white shadow-md'
+                    : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100'
+                }`}
+              >
+                Real Persons Compatibility
+              </button>
+            </div>
+          </div>
+
           {/* Inputs Section */}
           <div className="lg:col-span-2 space-y-6">
-            {/* The Form */}
-            <div className="bg-white rounded-2xl border border-zinc-150 p-6 shadow-sm">
-              <h3 className="text-lg font-psmbold text-zinc-900 mb-6 flex items-center gap-x-2">
-                <IoSparklesOutline className="text-xl text-logo" />
-                Input Partner Preferences
-              </h3>
+            {/* Wedding Preferences Form */}
+            {activeTab === 'preferences' && (
+              <div className="bg-white rounded-2xl border border-zinc-150 p-6 shadow-sm">
+                <h3 className="text-lg font-psmbold text-zinc-900 mb-6 flex items-center gap-x-2">
+                  <IoSparklesOutline className="text-xl text-logo" />
+                  Input Partner Preferences
+                </h3>
 
               <form onSubmit={handleMatch} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -274,9 +435,10 @@ const MatchmakerPage = () => {
                 </button>
               </form>
             </div>
+            )}
 
             {/* Results Display */}
-            {currentMatch && (
+            {activeTab === 'preferences' && currentMatch && (
               <div className="bg-white rounded-2xl border border-zinc-150 p-6 shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row items-center gap-x-6 gap-y-4">
                   {/* Gauge */}
@@ -350,6 +512,264 @@ const MatchmakerPage = () => {
                     <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Areas for Discussion</h4>
                     <div className="space-y-1.5">
                       {currentMatch.compromises.map((comp, i) => (
+                        <div key={i} className="flex items-start gap-x-2 text-sm text-zinc-800">
+                          <IoAlertCircle className="text-amber-500 text-lg shrink-0 mt-0.5" />
+                          <span>{comp}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Real Persons Compatibility Form */}
+            {activeTab === 'real-persons' && (
+              <div className="bg-white rounded-2xl border border-zinc-150 p-6 shadow-sm">
+                <h3 className="text-lg font-psmbold text-zinc-900 mb-6 flex items-center gap-x-2">
+                  <IoHeartOutline className="text-xl text-logo" />
+                  Real Persons Compatibility Analysis
+                </h3>
+
+                <form onSubmit={handleRealPersonMatch} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Person 1 details */}
+                    <div className="bg-zinc-50/50 p-4 rounded-xl border border-zinc-100 space-y-4">
+                      <h4 className="font-semibold text-logo text-sm uppercase tracking-wider">Person 1</h4>
+                      
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Name</label>
+                        <input
+                          type="text"
+                          value={realP1Name}
+                          onChange={(e) => setRealP1Name(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Age</label>
+                        <input
+                          type="number"
+                          value={realP1Age}
+                          onChange={(e) => setRealP1Age(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Profession</label>
+                        <input
+                          type="text"
+                          value={realP1Profession}
+                          onChange={(e) => setRealP1Profession(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Personality Type</label>
+                        <select
+                          value={realP1Personality}
+                          onChange={(e) => setRealP1Personality(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        >
+                          <option value="">Select personality</option>
+                          <option value="Introvert">Introvert</option>
+                          <option value="Extrovert">Extrovert</option>
+                          <option value="Ambivert">Ambivert</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Hobbies (comma separated)</label>
+                        <input
+                          type="text"
+                          value={realP1Hobbies}
+                          onChange={(e) => setRealP1Hobbies(e.target.value)}
+                          placeholder="e.g. reading, traveling, cooking"
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Core Values (comma separated)</label>
+                        <input
+                          type="text"
+                          value={realP1Values}
+                          onChange={(e) => setRealP1Values(e.target.value)}
+                          placeholder="e.g. family, honesty, ambition"
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Person 2 details */}
+                    <div className="bg-zinc-50/50 p-4 rounded-xl border border-zinc-100 space-y-4">
+                      <h4 className="font-semibold text-pink-600 text-sm uppercase tracking-wider">Person 2</h4>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Name</label>
+                        <input
+                          type="text"
+                          value={realP2Name}
+                          onChange={(e) => setRealP2Name(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Age</label>
+                        <input
+                          type="number"
+                          value={realP2Age}
+                          onChange={(e) => setRealP2Age(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Profession</label>
+                        <input
+                          type="text"
+                          value={realP2Profession}
+                          onChange={(e) => setRealP2Profession(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Personality Type</label>
+                        <select
+                          value={realP2Personality}
+                          onChange={(e) => setRealP2Personality(e.target.value)}
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                          required
+                        >
+                          <option value="">Select personality</option>
+                          <option value="Introvert">Introvert</option>
+                          <option value="Extrovert">Extrovert</option>
+                          <option value="Ambivert">Ambivert</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Hobbies (comma separated)</label>
+                        <input
+                          type="text"
+                          value={realP2Hobbies}
+                          onChange={(e) => setRealP2Hobbies(e.target.value)}
+                          placeholder="e.g. sports, music, gaming"
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-500 mb-1">Core Values (comma separated)</label>
+                        <input
+                          type="text"
+                          value={realP2Values}
+                          onChange={(e) => setRealP2Values(e.target.value)}
+                          placeholder="e.g. family, honesty, creativity"
+                          className="w-full px-3 py-1.5 border border-zinc-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500 transition-colors"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-logo hover:bg-logo/90 text-white font-psmbold rounded-xl transition-colors flex items-center justify-center gap-x-2 shadow-sm text-base cursor-pointer"
+                  >
+                    <IoHeartOutline className="text-xl" />
+                    <span>Calculate Real Persons Compatibility</span>
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Real Persons Results Display */}
+            {activeTab === 'real-persons' && realMatchResult && (
+              <div className="bg-white rounded-2xl border border-zinc-150 p-6 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row items-center gap-x-6 gap-y-4">
+                  {/* Gauge */}
+                  <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle
+                        cx="72"
+                        cy="72"
+                        r="60"
+                        className="stroke-zinc-100"
+                        strokeWidth="10"
+                        fill="transparent"
+                      />
+                      <circle
+                        cx="72"
+                        cy="72"
+                        r="60"
+                        className="stroke-pink-500"
+                        strokeWidth="10"
+                        fill="transparent"
+                        strokeDasharray={2 * Math.PI * 60}
+                        strokeDashoffset={2 * Math.PI * 60 * (1 - realMatchResult.compatibilityScore / 100)}
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <div className="absolute flex flex-col items-center justify-center">
+                      <span className="text-3xl font-psmbold text-zinc-950">{realMatchResult.compatibilityScore}%</span>
+                      <span className="text-[10px] text-zinc-500 uppercase font-semibold">Compatibility</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-xl font-psmbold text-zinc-950">
+                      Real Persons Compatibility: {realMatchResult.partner1.name} & {realMatchResult.partner2.name}
+                    </h3>
+                    <p className="text-sm text-zinc-500 mt-1">
+                      Calculated using personality, values, hobbies, profession, and age compatibility factors.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Recommendation */}
+                <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl p-5 border border-pink-100">
+                  <h4 className="text-xs font-bold text-pink-700 uppercase tracking-widest mb-2 flex items-center gap-x-1.5">
+                    <IoHeartOutline className="text-sm" />
+                    Compatibility Assessment
+                  </h4>
+                  <p className="text-zinc-800 text-sm font-medium leading-relaxed">
+                    {realMatchResult.recommendation}
+                  </p>
+                </div>
+
+                {/* Agreements list */}
+                {realMatchResult.matches.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Strengths</h4>
+                    <div className="space-y-1.5">
+                      {realMatchResult.matches.map((match, i) => (
+                        <div key={i} className="flex items-start gap-x-2 text-sm text-zinc-800">
+                          <IoCheckmarkCircle className="text-green-500 text-lg shrink-0 mt-0.5" />
+                          <span>{match}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Compromises list */}
+                {realMatchResult.compromises.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Areas to Consider</h4>
+                    <div className="space-y-1.5">
+                      {realMatchResult.compromises.map((comp, i) => (
                         <div key={i} className="flex items-start gap-x-2 text-sm text-zinc-800">
                           <IoAlertCircle className="text-amber-500 text-lg shrink-0 mt-0.5" />
                           <span>{comp}</span>

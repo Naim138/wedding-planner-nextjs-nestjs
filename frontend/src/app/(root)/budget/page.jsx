@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { axiosClient } from '@/utils/AxiosClient';
 import { toast } from 'react-toastify';
 import { CgSpinner } from 'react-icons/cg';
-import { IoTrashOutline, IoCreateOutline, IoCheckmarkOutline, IoCloseOutline } from 'react-icons/io5';
+import { IoTrashOutline, IoCreateOutline, IoCheckmarkOutline, IoCloseOutline, IoDownloadOutline } from 'react-icons/io5';
 import BreadCrums from '@/components/BreadCrums';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const BudgetTrackerPage = () => {
   const [items, setItems] = useState([]);
@@ -161,6 +163,59 @@ const BudgetTrackerPage = () => {
     }
   };
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(20);
+    doc.setTextColor(88, 28, 135);
+    doc.text('Wedding Budget Report', 14, 22);
+    
+    // Add date
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Add summary
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Target Budget: BDT ${targetBudget.toLocaleString()}`, 14, 42);
+    doc.text(`Total Estimated: BDT ${totalEstimated.toLocaleString()}`, 14, 50);
+    doc.text(`Total Actual: BDT ${totalActual.toLocaleString()}`, 14, 58);
+    doc.text(`Remaining: BDT ${remainingBudget.toLocaleString()}`, 14, 66);
+    
+    // Add table
+    const tableData = items.map(item => [
+      item.category,
+      `BDT ${item.estimatedCost.toLocaleString()}`,
+      `BDT ${item.actualCost.toLocaleString()}`,
+      `BDT ${(item.estimatedCost - item.actualCost).toLocaleString()}`,
+      item.notes || '—'
+    ]);
+    
+    doc.autoTable({
+      startY: 75,
+      head: [['Category', 'Estimated', 'Actual', 'Difference', 'Notes']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [88, 28, 135],
+        textColor: [255, 255, 255],
+        fontSize: 10,
+      },
+      bodyStyles: {
+        fontSize: 9,
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+    });
+    
+    // Save the PDF
+    doc.save(`wedding-budget-${new Date().toISOString().split('T')[0]}.pdf`);
+    toast.success("Budget report downloaded successfully!");
+  };
+
   // Math summary
   const totalEstimated = items.reduce((sum, item) => sum + item.estimatedCost, 0);
   const totalActual = items.reduce((sum, item) => sum + item.actualCost, 0);
@@ -179,6 +234,17 @@ const BudgetTrackerPage = () => {
       ) : (
         <div className="space-y-8 mt-6">
           {/* Top Overview Cards */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-psmbold text-zinc-900">Budget Overview</h2>
+            <button
+              onClick={handleExportPDF}
+              className="flex items-center gap-x-2 px-4 py-2 bg-logo hover:bg-logo/90 text-white font-semibold rounded-lg transition-colors shadow-sm"
+            >
+              <IoDownloadOutline className="text-lg" />
+              <span>Export PDF</span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Target Budget Card */}
             <div className="bg-white rounded-2xl border border-zinc-150 p-6 shadow-sm flex flex-col justify-between">
