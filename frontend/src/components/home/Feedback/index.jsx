@@ -17,31 +17,31 @@ const reviews = [
     name: "Fatima Rahman",
     profession: "Software Engineer",
     review: "এই ওয়েডিং প্ল্যানার অ্যাপটি আমার জন্য খুবই কাজের ছিল। বাজেট ট্র্যাকিং এবং ভেন্ডর খোঁজা খুব সহজ হয়ে গেছে। আমার বিয়ের প্রস্তুতি নিয়ে অনেক স্ট্রেস কমে গেছে।",
-    image: "https://randomuser.me/api/portraits/women/44.jpg"
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face"
   },
   {
     name: "Rahim Ahmed",
     profession: "Business Owner",
     review: "আমি এবং আমার স্ত্রী দুজনেই এই অ্যাপ ব্যবহার করেছি। ম্যাচমেকার ফিচারটি আমাদের পছন্দ অনুযায়ী ভেন্ডর খুঁজে পেতে অনেক সাহায্য করেছে। সব মিলিয়ে একটি চমৎকার অভিজ্ঞতা।",
-    image: "https://randomuser.me/api/portraits/men/32.jpg"
+    image: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=150&h=150&fit=crop&crop=face"
   },
   {
     name: "Ayesha Begum",
     profession: "Teacher",
     review: "ভেন্ডর লিস্টিং দেখে আমি খুব খুশি হয়েছি। এখানে ভালো মানের ফটোগ্রাফার এবং ক্যাটারিং সার্ভিস পেয়েছি। দামও যুক্তিসঙ্গত ছিল। সবাইকে এই অ্যাপ ব্যবহার করার পরামর্শ দেব।",
-    image: "https://randomuser.me/api/portraits/women/65.jpg"
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face"
   },
   {
     name: "Karim Uddin",
     profession: "Bank Manager",
     review: "বাজেট ম্যানেজমেন্ট টুলটি অসাধারণ। আমি সব খরচ ট্র্যাক করতে পেরেছি এবং শেষে বাজেটের মধ্যেই বিয়ে সম্পন্ন করতে পেরেছি। PDF রিপোর্ট ডাউনলোড করার ফিচারটিও খুব কাজের।",
-    image: "https://randomuser.me/api/portraits/men/75.jpg"
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face"
   },
   {
     name: "Nusrat Jahan",
     profession: "Doctor",
     review: "ম্যাচমেকার ফিচারটি আমার পছন্দের। আমার এবং আমার ফিয়ান্সের পছন্দের মিল দেখে ভেন্ডর সিলেক্ট করতে পেরেছি। অ্যাপটি খুব ইউজার ফ্রেন্ডলি এবং ডিজাইনও সুন্দর।",
-    image: "https://randomuser.me/api/portraits/women/28.jpg"
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face"
   }
 ];
 
