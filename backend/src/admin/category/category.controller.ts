@@ -25,6 +25,12 @@ export class CategoryController {
         return res_obj;
     }
 
+    @Post("/update-all-public")
+    async updateAllCategoriesToPublic(){
+        const res_obj = await this.categoryService.updateAllCategoriesToPublic();
+        return res_obj;
+    }
+
     @Delete("/delete/:id") 
     async deleteCategoryById(@Param() data:CategoryIdDTO){
         const res_obj = await this.categoryService.deleteCategoryById(data.id);

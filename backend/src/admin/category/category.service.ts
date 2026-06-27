@@ -60,6 +60,17 @@ export class CategoryService {
         return all_categories
     }
 
+    async updateAllCategoriesToPublic(){
+        const result = await this.CategoryModel.updateMany(
+            { isPublic: { $ne: true } },
+            { isPublic: true }
+        )
+        return {
+            msg: `Updated ${result.modifiedCount} categories to public`,
+            modifiedCount: result.modifiedCount
+        }
+    }
+
     async deleteCategoryById(id:string){
         const category = await this.CategoryModel.findByIdAndDelete(id)
     if(!category){
