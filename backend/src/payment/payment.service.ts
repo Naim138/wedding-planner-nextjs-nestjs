@@ -163,9 +163,9 @@ export class PaymentService {
 
     const purposeDescription = data.purpose === "vendor_registration" ? "Vendor Registration Fee" : "Monthly Subscription";
 
-    const successUrl = `${frontendUrl}/payment/success?paymentId=${data.paymentId}`;
-    const failUrl = `${frontendUrl}/payment/cancel?paymentId=${data.paymentId}`;
-    const cancelUrl = `${frontendUrl}/payment/cancel?paymentId=${data.paymentId}`;
+    const successUrl = `${backendUrl}/api/v1/payment/sslcommerz/success?paymentId=${data.paymentId}`;
+    const failUrl = `${backendUrl}/api/v1/payment/sslcommerz/fail?paymentId=${data.paymentId}`;
+    const cancelUrl = `${backendUrl}/api/v1/payment/sslcommerz/cancel?paymentId=${data.paymentId}`;
     const ipnUrl = `${backendUrl}/api/v1/payment/sslcommerz/ipn`;
 
     console.log("Callback URLs:", { successUrl, failUrl, cancelUrl, ipnUrl });
@@ -183,14 +183,13 @@ export class PaymentService {
       product_name: purposeDescription,
       product_category: "Service",
       product_profile: "non-physical-goods",
-      cus_name: data.user.name,
-      cus_email: data.user.email,
+      cus_name: data.user.name || "Customer",
+      cus_email: data.user.email || "customer@test.com",
       cus_add1: data.user.address || "N/A",
       cus_city: "Dhaka",
       cus_country: "Bangladesh",
       cus_phone: "+8801317326820",
       shipping_method: "NO",
-      multi_card_name: "bkash,nagad,rocket",
       value_a: data.paymentId,
       value_b: data.purpose,
     };

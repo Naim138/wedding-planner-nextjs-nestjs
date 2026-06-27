@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import axiosClient from '@/utils/axiosClient';
+import { axiosClient } from '@/utils/AxiosClient';
 
 const PaymentCancelPage = () => {
     const router = useRouter();

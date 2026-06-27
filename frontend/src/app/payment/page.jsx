@@ -5,9 +5,11 @@ import { useCreateVendorRegistrationMutation, useCreateVendorSubscriptionMutatio
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import { UserSlicePath } from '@/app/redux/slices/UserSlice';
 
 const PaymentPage = () => {
-    const { userProfile } = useMainContext();
+    const userProfile = useSelector(UserSlicePath);
     const router = useRouter();
     const [paymentType, setPaymentType] = useState('registration');
     
