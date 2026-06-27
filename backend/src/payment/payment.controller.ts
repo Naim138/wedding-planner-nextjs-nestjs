@@ -35,13 +35,13 @@ export class PaymentController {
     return this.paymentService.getAllPayments();
   }
 
-  @Patch("/:paymentId/approve")
+  @Patch("/:paymentId/activate")
   @UseGuards(AuthGuard)
-  async approvePayment(@Param("paymentId") paymentId: string, @Req() req) {
+  async activateAccount(@Param("paymentId") paymentId: string, @Req() req) {
     // Check if user is admin
     const user = await req.user;
     if (user.role !== "admin") {
-      throw new Error("Only admins can approve payments");
+      throw new Error("Only admins can activate accounts");
     }
     return this.paymentService.approvePayment(paymentId);
   }
