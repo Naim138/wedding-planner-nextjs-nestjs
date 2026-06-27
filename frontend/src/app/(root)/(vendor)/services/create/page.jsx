@@ -117,7 +117,7 @@ const CreateServicePge = () => {
                     <Field as="select" name="category" id="category" className="w-full border-primary border outline-none rounded-md px-3 py-3" placeholder="Enter Choose Valid Category" >
                    {isLoading? <option value="">loading...</option>:   <option value="">select</option>}
                         {
-                          !isLoading && AllCategories.map((cur,i)=>{
+                          !isLoading && AllCategories && AllCategories.map((cur,i)=>{
                             return <option key={i} value={cur._id}>{cur.name}</option>
                           })
                         }

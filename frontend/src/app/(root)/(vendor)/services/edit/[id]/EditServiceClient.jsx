@@ -122,7 +122,7 @@ const EditServiceClient = ({ params }) => {
               <label htmlFor="category">Category <span className="text-red-500">*</span></label>
               <Field as="select" name="category" id="category" className="w-full border-primary border outline-none rounded-md px-3 py-3">
                 {isLoading ? <option value="">loading...</option> : <option value="">select</option>}
-                {!isLoading && allCategories?.map((cur, i) => <option key={i} value={cur._id}>{cur.name}</option>)}
+                {!isLoading && allCategories && allCategories.map((cur, i) => <option key={i} value={cur._id}>{cur.name}</option>)}
               </Field>
               <ErrorMessage className="text-red-500 text-sm" component="p" name="category" />
             </div>
