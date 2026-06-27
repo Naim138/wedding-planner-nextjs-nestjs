@@ -49,7 +49,7 @@ const VendorService = () => {
                             
                             {isLoading? <SelectItem defaultValue="">loading...</SelectItem>:  null}
                         {
-                          !isLoading &&data.length>0&& data.map((cur,i)=>{
+                          !isLoading && data && data.length>0 && data.map((cur,i)=>{
                             return <SelectItem key={i} value={cur._id}>{cur.name}</SelectItem>
                           })
                         }
