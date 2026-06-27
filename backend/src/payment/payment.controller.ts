@@ -28,7 +28,7 @@ export class PaymentController {
   @UseGuards(AuthGuard)
   async getAllPayments(@Req() req) {
     // Check if user is admin
-    const user = await req.user;
+    const user = req.user;
     if (user.role !== "admin") {
       throw new Error("Only admins can view all payments");
     }
@@ -39,7 +39,7 @@ export class PaymentController {
   @UseGuards(AuthGuard)
   async activateAccount(@Param("paymentId") paymentId: string, @Req() req) {
     // Check if user is admin
-    const user = await req.user;
+    const user = req.user;
     if (user.role !== "admin") {
       throw new Error("Only admins can activate accounts");
     }
@@ -50,7 +50,7 @@ export class PaymentController {
   @UseGuards(AuthGuard)
   async rejectPayment(@Param("paymentId") paymentId: string, @Req() req) {
     // Check if user is admin
-    const user = await req.user;
+    const user = req.user;
     if (user.role !== "admin") {
       throw new Error("Only admins can reject payments");
     }
