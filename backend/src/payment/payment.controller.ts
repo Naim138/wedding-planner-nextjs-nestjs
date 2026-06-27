@@ -1,10 +1,16 @@
 import { Body, Controller, Get, Post, Req, UseGuards, Res, Query, Param, Patch } from "@nestjs/common";
 import { AuthGuard } from "src/auth/auth.guard";
 import { PaymentService } from "./payment.service";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { User } from "src/models/User.model";
 
 @Controller("/api/v1/payment")
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(
+    private readonly paymentService: PaymentService,
+    @InjectModel(User.name) private readonly userModel: Model<User>
+  ) {}
 
   @Post("/vendor-registration")
   @UseGuards(AuthGuard)
@@ -28,8 +34,14 @@ export class PaymentController {
   @UseGuards(AuthGuard)
   async getAllPayments(@Req() req) {
     try {
-      // Check if user is admin
-      const user = req.user;
+      // Fetch full user object using userId from auth guard
+      const userId = req.user;
+      const user = await this.userModel.findById(userId).select('-password');
+      
+      if (!user) {
+        throw new Error("User not found");
+      }
+      
       console.log("Fetching all payments for user:", user.email, "role:", user.role);
       
       if (user.role !== "admin") {
@@ -49,9 +61,11 @@ export class PaymentController {
   @Patch("/:paymentId/activate")
   @UseGuards(AuthGuard)
   async activateAccount(@Param("paymentId") paymentId: string, @Req() req) {
-    // Check if user is admin
-    const user = req.user;
-    if (user.role !== "admin") {
+    // Fetch full user object using userId from auth guard
+    const userId = req.user;
+    const user = await this.userModel.findById(userId).select('-password');
+    
+    if (!user || user.role !== "admin") {
       throw new Error("Only admins can activate accounts");
     }
     return this.paymentService.approvePayment(paymentId);
@@ -60,9 +74,11 @@ export class PaymentController {
   @Patch("/:paymentId/reject")
   @UseGuards(AuthGuard)
   async rejectPayment(@Param("paymentId") paymentId: string, @Req() req) {
-    // Check if user is admin
-    const user = req.user;
-    if (user.role !== "admin") {
+    // Fetch full user object using userId from auth guard
+    const userId = req.user;
+    const user = await this.userModel.findById(userId).select('-password');
+    
+    if (!user || user.role !== "admin") {
       throw new Error("Only admins can reject payments");
     }
     return this.paymentService.rejectPayment(paymentId);

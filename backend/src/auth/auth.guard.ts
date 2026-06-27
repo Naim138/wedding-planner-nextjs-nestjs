@@ -1,19 +1,16 @@
 import { CanActivate, ExecutionContext, Injectable ,UnauthorizedException} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt'; 
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from 'src/models/User.model';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
 
 
-  constructor(private readonly jwtService:JwtService, @InjectModel(User.name) private readonly userModel:Model<User>){}
+  constructor(private readonly jwtService:JwtService){}
 
-  async canActivate(
+  canActivate(
     context: ExecutionContext,
-  ): Promise<boolean> {
+  ): boolean | Promise<boolean> | Observable<boolean> {
           try{
  
                 const request = context.switchToHttp().getRequest()
@@ -27,14 +24,7 @@ export class AuthGuard implements CanActivate {
                   throw new UnauthorizedException("Invalid Authorization Token")
                 }
                 const payload = this.jwtService.verify(token)
-                
-                // Fetch full user object from database
-                const user = await this.userModel.findById(payload.userId).select('-password');
-                if (!user) {
-                  throw new UnauthorizedException("User not found");
-                }
-                
-                request.user = user;
+                request.user = payload.userId;
                 request.type = payload.type;
 
             return true;
