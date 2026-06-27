@@ -24,12 +24,7 @@ export class MatchmakerController {
   async getUsersForMatching(@Req() req: any) {
     const users = await this.userModel.find({
       _id: { $ne: req.user },
-      role: 'user',
-      $or: [
-        { age: { $ne: null } },
-        { personality: { $ne: '' } },
-        { profession: { $ne: '' } }
-      ]
+      role: 'user'
     }).select('name email age profession personality hobbies values gender avatar');
     return users;
   }

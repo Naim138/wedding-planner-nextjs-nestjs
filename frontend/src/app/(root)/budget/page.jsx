@@ -6,7 +6,7 @@ import { CgSpinner } from 'react-icons/cg';
 import { IoTrashOutline, IoCreateOutline, IoCheckmarkOutline, IoCloseOutline, IoDownloadOutline } from 'react-icons/io5';
 import BreadCrums from '@/components/BreadCrums';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const BudgetTrackerPage = () => {
   const [items, setItems] = useState([]);
@@ -194,7 +194,7 @@ const BudgetTrackerPage = () => {
         item.notes || '—'
       ]);
       
-      doc.autoTable({
+      autoTable(doc, {
         startY: 75,
         head: [['Category', 'Estimated', 'Actual', 'Difference', 'Notes']],
         body: tableData,
