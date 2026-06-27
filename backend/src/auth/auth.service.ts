@@ -48,7 +48,11 @@ export class AuthService {
             const payment = await this.paymentService.createVendorRegistrationPayment(String(user._id))
             return {
                 msg:"Vendor registration created. Please pay 500 BDT to activate your vendor account.",
-                ...payment
+                paymentId: payment.paymentId,
+                amount: payment.amount,
+                currency: payment.currency,
+                purpose: payment.purpose,
+                paymentUrl: payment.paymentUrl
             }
         }
 
