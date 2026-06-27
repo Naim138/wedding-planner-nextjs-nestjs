@@ -44,7 +44,7 @@ export class User{
     @Prop({type:String,default:''})
     profession:string
 
-    @Prop({type:String,enum:['Introvert','Extrovert','Ambivert'],default:''})
+    @Prop({type:String,enum:['Introvert','Extrovert','Ambivert']})
     personality:string
 
     @Prop({type:String,default:''})
@@ -53,7 +53,7 @@ export class User{
     @Prop({type:String,default:''})
     values:string
 
-    @Prop({type:String,enum:['male','female','other'],default:''})
+    @Prop({type:String,enum:['male','female','other']})
     gender:string
 }
 
