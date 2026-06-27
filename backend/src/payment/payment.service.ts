@@ -75,6 +75,8 @@ export class PaymentService {
   }
 
   async validateIPN(payload: Record<string, unknown>) {
+    console.log("IPN Received:", JSON.stringify(payload, null, 2));
+    
     const storePassword = process.env.SSLCOMMERZ_STORE_PASSWORD;
     const valId = String(payload.val_id || "");
     
@@ -84,24 +86,39 @@ export class PaymentService {
 
     const validationApi = process.env.SSLCOMMERZ_VALIDATION_API || "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php";
     
+    console.log("Calling validation API:", validationApi);
+    
     const response = await fetch(`${validationApi}?val_id=${valId}&store_id=${process.env.SSLCOMMERZ_STORE_ID}&store_passwd=${storePassword}&format=json`);
     const result = await response.json().catch(() => ({}));
 
+    console.log("Validation API Response:", JSON.stringify(result, null, 2));
+
     if (result.status === "VALID" || result.status === "VALIDATED") {
       const tranId = String(result.tran_id || "");
+      console.log("Payment valid for tranId:", tranId);
+      
       const payment = await this.paymentModel.findOne({ gatewayTransactionId: tranId });
       
-      if (payment && payment.status !== "paid") {
+      if (!payment) {
+        console.error("Payment not found for tranId:", tranId);
+        return { msg: "Payment not found", result };
+      }
+      
+      console.log("Payment found, current status:", payment.status);
+      
+      if (payment.status !== "paid") {
         payment.status = "paid";
         payment.paidAt = new Date();
         payment.callbackPayload = result;
         await payment.save();
         await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
+        console.log("Payment status updated to paid via IPN");
       }
       
       return { msg: "IPN validated", payment };
     }
 
+    console.log("IPN validation failed, status:", result.status);
     return { msg: "IPN validation failed", result };
   }
 
