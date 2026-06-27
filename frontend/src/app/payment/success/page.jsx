@@ -4,26 +4,48 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { FaCheckCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import axiosClient from '@/utils/axiosClient';
 
 const PaymentSuccessPage = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { fetchUserProfile } = useMainContext();
     const paymentId = searchParams.get('paymentId');
+    const tranId = searchParams.get('tran_id');
+    const status = searchParams.get('status');
 
     useEffect(() => {
-        if (paymentId) {
-            toast.success('Payment completed successfully!');
-            fetchUserProfile();
-        }
+        const processPayment = async () => {
+            try {
+                // Call backend callback to process payment
+                if (tranId && status) {
+                    await axiosClient.post('/payment/sslcommerz/callback', {
+                        tran_id: tranId,
+                        status: status,
+                        val_id: searchParams.get('val_id'),
+                    });
+                }
+                
+                if (paymentId) {
+                    toast.success('Payment completed successfully!');
+                    await fetchUserProfile();
+                }
 
-        // Redirect to dashboard after 3 seconds
-        const timer = setTimeout(() => {
-            router.push('/dashboard');
-        }, 3000);
+                // Redirect to dashboard after 3 seconds
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 3000);
+            } catch (error) {
+                console.error('Payment processing error:', error);
+                toast.error('Payment processing failed');
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 3000);
+            }
+        };
 
-        return () => clearTimeout(timer);
-    }, [paymentId, router, fetchUserProfile]);
+        processPayment();
+    }, [paymentId, tranId, status, router, fetchUserProfile, searchParams]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-900 via-emerald-900 to-teal-900 flex items-center justify-center px-4">
