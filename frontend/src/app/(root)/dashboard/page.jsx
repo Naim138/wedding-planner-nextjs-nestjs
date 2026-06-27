@@ -12,7 +12,7 @@ import {
   IoLocationOutline,
   IoSparklesOutline,
 } from 'react-icons/io5';
-import { MdCategory, MdDashboard, MdOutlineExplore } from 'react-icons/md';
+import { MdCategory, MdDashboard, MdOutlineExplore, MdPayments } from 'react-icons/md';
 import { RxGear } from 'react-icons/rx';
 import { useSelector } from 'react-redux';
 
@@ -132,6 +132,7 @@ const Dashboard = () => {
               { href: '/admin/users', label: 'Manage Users & Vendors', Icon: CiUser },
               { href: '/admin/services', label: 'Manage Services', Icon: RxGear },
               { href: '/admin/enquiries', label: 'Manage Enquiries', Icon: CiSquareInfo },
+              { href: '/admin/payments', label: 'Manage Payments', Icon: MdPayments },
             ]}
           />
           <InfoPanel
