@@ -319,6 +319,8 @@ export class PaymentService {
       update.vendorRegistrationPaid = true;
     }
 
-    await this.userModel.findByIdAndUpdate(userId, update);
+    console.log("Activating vendor payment for user:", userId, "purpose:", purpose, "update:", update);
+    const result = await this.userModel.findByIdAndUpdate(userId, update, { new: true });
+    console.log("User updated after activation:", result?.email, "vendorPaymentStatus:", result?.vendorPaymentStatus, "vendorRegistrationPaid:", result?.vendorRegistrationPaid);
   }
 }
