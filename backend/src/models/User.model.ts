@@ -36,6 +36,25 @@ export class User{
 
     @Prop({type:Date,default:null})
     vendorSubscriptionExpiresAt:Date
+
+    // Compatibility matching fields
+    @Prop({type:Number,default:null})
+    age:number
+
+    @Prop({type:String,default:''})
+    profession:string
+
+    @Prop({type:String,enum:['Introvert','Extrovert','Ambivert'],default:''})
+    personality:string
+
+    @Prop({type:String,default:''})
+    hobbies:string
+
+    @Prop({type:String,default:''})
+    values:string
+
+    @Prop({type:String,enum:['male','female','other'],default:''})
+    gender:string
 }
 
 

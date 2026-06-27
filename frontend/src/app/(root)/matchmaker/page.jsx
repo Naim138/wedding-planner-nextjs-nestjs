@@ -44,6 +44,12 @@ const MatchmakerPage = () => {
   const [realP2Values, setRealP2Values] = useState('');
   const [realMatchResult, setRealMatchResult] = useState(null);
 
+  // User selection state
+  const [availableUsers, setAvailableUsers] = useState([]);
+  const [selectedUser1, setSelectedUser1] = useState(null);
+  const [selectedUser2, setSelectedUser2] = useState(null);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
   const fetchHistory = async () => {
     try {
       const token = localStorage.getItem("token") || '';
@@ -63,9 +69,32 @@ const MatchmakerPage = () => {
     }
   };
 
+  const fetchAvailableUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const token = localStorage.getItem("token") || '';
+      const response = await axiosClient.get("/matchmaker/users", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setAvailableUsers(response.data || []);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to load available users");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
   useEffect(() => {
     fetchHistory();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'real-persons') {
+      fetchAvailableUsers();
+    }
+  }, [activeTab]);
 
   const handleMatch = async (e) => {
     e.preventDefault();
@@ -530,6 +559,73 @@ const MatchmakerPage = () => {
                   <IoHeartOutline className="text-xl text-logo" />
                   Real Persons Compatibility Analysis
                 </h3>
+
+                {/* User Selection Mode */}
+                <div className="mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                  <p className="text-sm text-indigo-800 font-medium mb-3">
+                    Select users from the database for automatic compatibility check
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-indigo-700 mb-1">Select Person 1</label>
+                      <select
+                        value={selectedUser1?._id || ''}
+                        onChange={(e) => {
+                          const user = availableUsers.find(u => u._id === e.target.value);
+                          if (user) {
+                            setSelectedUser1(user);
+                            setRealP1Name(user.name || '');
+                            setRealP1Age(user.age?.toString() || '');
+                            setRealP1Profession(user.profession || '');
+                            setRealP1Personality(user.personality || '');
+                            setRealP1Hobbies(user.hobbies || '');
+                            setRealP1Values(user.values || '');
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-indigo-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500"
+                      >
+                        <option value="">-- Select from database --</option>
+                        {availableUsers.filter(u => u._id !== selectedUser2?._id).map(user => (
+                          <option key={user._id} value={user._id}>
+                            {user.name} ({user.profession || 'No profession'})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-indigo-700 mb-1">Select Person 2</label>
+                      <select
+                        value={selectedUser2?._id || ''}
+                        onChange={(e) => {
+                          const user = availableUsers.find(u => u._id === e.target.value);
+                          if (user) {
+                            setSelectedUser2(user);
+                            setRealP2Name(user.name || '');
+                            setRealP2Age(user.age?.toString() || '');
+                            setRealP2Profession(user.profession || '');
+                            setRealP2Personality(user.personality || '');
+                            setRealP2Hobbies(user.hobbies || '');
+                            setRealP2Values(user.values || '');
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-indigo-200 rounded-lg text-sm bg-white outline-none focus:border-indigo-500"
+                      >
+                        <option value="">-- Select from database --</option>
+                        {availableUsers.filter(u => u._id !== selectedUser1?._id).map(user => (
+                          <option key={user._id} value={user._id}>
+                            {user.name} ({user.profession || 'No profession'})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  {loadingUsers && (
+                    <p className="text-xs text-indigo-600 mt-2">Loading available users...</p>
+                  )}
+                  {availableUsers.length === 0 && !loadingUsers && (
+                    <p className="text-xs text-zinc-500 mt-2">No users available for matching. Users need to fill their profile first.</p>
+                  )}
+                </div>
 
                 <form onSubmit={handleRealPersonMatch} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

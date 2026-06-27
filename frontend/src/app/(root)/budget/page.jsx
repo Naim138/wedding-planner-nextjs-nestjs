@@ -164,56 +164,61 @@ const BudgetTrackerPage = () => {
   };
 
   const handleExportPDF = () => {
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(20);
-    doc.setTextColor(88, 28, 135);
-    doc.text('Wedding Budget Report', 14, 22);
-    
-    // Add date
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-    
-    // Add summary
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Target Budget: BDT ${targetBudget.toLocaleString()}`, 14, 42);
-    doc.text(`Total Estimated: BDT ${totalEstimated.toLocaleString()}`, 14, 50);
-    doc.text(`Total Actual: BDT ${totalActual.toLocaleString()}`, 14, 58);
-    doc.text(`Remaining: BDT ${remainingBudget.toLocaleString()}`, 14, 66);
-    
-    // Add table
-    const tableData = items.map(item => [
-      item.category,
-      `BDT ${item.estimatedCost.toLocaleString()}`,
-      `BDT ${item.actualCost.toLocaleString()}`,
-      `BDT ${(item.estimatedCost - item.actualCost).toLocaleString()}`,
-      item.notes || '—'
-    ]);
-    
-    doc.autoTable({
-      startY: 75,
-      head: [['Category', 'Estimated', 'Actual', 'Difference', 'Notes']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: {
-        fillColor: [88, 28, 135],
-        textColor: [255, 255, 255],
-        fontSize: 10,
-      },
-      bodyStyles: {
-        fontSize: 9,
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245],
-      },
-    });
-    
-    // Save the PDF
-    doc.save(`wedding-budget-${new Date().toISOString().split('T')[0]}.pdf`);
-    toast.success("Budget report downloaded successfully!");
+    try {
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(20);
+      doc.setTextColor(88, 28, 135);
+      doc.text('Wedding Budget Report', 14, 22);
+      
+      // Add date
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+      
+      // Add summary
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Target Budget: BDT ${targetBudget.toLocaleString()}`, 14, 42);
+      doc.text(`Total Estimated: BDT ${totalEstimated.toLocaleString()}`, 14, 50);
+      doc.text(`Total Actual: BDT ${totalActual.toLocaleString()}`, 14, 58);
+      doc.text(`Remaining: BDT ${remainingBudget.toLocaleString()}`, 14, 66);
+      
+      // Add table
+      const tableData = items.map(item => [
+        item.category,
+        `BDT ${item.estimatedCost.toLocaleString()}`,
+        `BDT ${item.actualCost.toLocaleString()}`,
+        `BDT ${(item.estimatedCost - item.actualCost).toLocaleString()}`,
+        item.notes || '—'
+      ]);
+      
+      doc.autoTable({
+        startY: 75,
+        head: [['Category', 'Estimated', 'Actual', 'Difference', 'Notes']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [88, 28, 135],
+          textColor: [255, 255, 255],
+          fontSize: 10,
+        },
+        bodyStyles: {
+          fontSize: 9,
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245],
+        },
+      });
+      
+      // Save the PDF
+      doc.save(`wedding-budget-${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("Budget report downloaded successfully!");
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error("Failed to generate PDF. Please try again.");
+    }
   };
 
   // Math summary
