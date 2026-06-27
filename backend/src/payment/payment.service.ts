@@ -77,49 +77,67 @@ export class PaymentService {
   async validateIPN(payload: Record<string, unknown>) {
     console.log("IPN Received:", JSON.stringify(payload, null, 2));
     
-    const storePassword = process.env.SSLCOMMERZ_STORE_PASSWORD;
+    const status = String(payload.status || "").toUpperCase();
+    const tranId = String(payload.tran_id || "");
     const valId = String(payload.val_id || "");
+    const amount = String(payload.amount || "");
     
-    if (!valId || !storePassword) {
-      throw new BadRequestException("Invalid validation request");
+    console.log("IPN Parsed Data:", { status, tranId, valId, amount });
+
+    // First check if payment exists by tran_id
+    const payment = await this.paymentModel.findOne({ gatewayTransactionId: tranId });
+    
+    if (!payment) {
+      console.error("Payment not found for tranId:", tranId);
+      return { msg: "Payment not found", status: "error" };
+    }
+    
+    console.log("Payment found:", payment._id, "Current status:", payment.status);
+
+    // If already paid, no need to process again
+    if (payment.status === "paid") {
+      console.log("Payment already paid, skipping");
+      return { msg: "Payment already processed", payment };
     }
 
-    const validationApi = process.env.SSLCOMMERZ_VALIDATION_API || "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php";
-    
-    console.log("Calling validation API:", validationApi);
-    
-    const response = await fetch(`${validationApi}?val_id=${valId}&store_id=${process.env.SSLCOMMERZ_STORE_ID}&store_passwd=${storePassword}&format=json`);
-    const result = await response.json().catch(() => ({}));
-
-    console.log("Validation API Response:", JSON.stringify(result, null, 2));
-
-    if (result.status === "VALID" || result.status === "VALIDATED") {
-      const tranId = String(result.tran_id || "");
-      console.log("Payment valid for tranId:", tranId);
-      
-      const payment = await this.paymentModel.findOne({ gatewayTransactionId: tranId });
-      
-      if (!payment) {
-        console.error("Payment not found for tranId:", tranId);
-        return { msg: "Payment not found", result };
-      }
-      
-      console.log("Payment found, current status:", payment.status);
-      
-      if (payment.status !== "paid") {
-        payment.status = "paid";
-        payment.paidAt = new Date();
-        payment.callbackPayload = result;
-        await payment.save();
-        await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
-        console.log("Payment status updated to paid via IPN");
-      }
-      
-      return { msg: "IPN validated", payment };
+    // Update status based on IPN status
+    if (status === "VALID") {
+      console.log("IPN status is VALID, updating payment to paid");
+      payment.status = "paid";
+      payment.paidAt = new Date();
+      payment.callbackPayload = payload;
+      await payment.save();
+      await this.activateVendorPayment(String(payment.user), payment.purpose as PaymentPurpose);
+      console.log("Payment status updated to paid via IPN");
+      return { msg: "IPN validated and payment processed", payment };
     }
 
-    console.log("IPN validation failed, status:", result.status);
-    return { msg: "IPN validation failed", result };
+    if (status === "FAILED") {
+      payment.status = "failed";
+      payment.callbackPayload = payload;
+      await payment.save();
+      console.log("Payment status updated to failed");
+      return { msg: "Payment failed", payment };
+    }
+
+    if (status === "CANCELLED") {
+      payment.status = "cancelled";
+      payment.callbackPayload = payload;
+      await payment.save();
+      console.log("Payment status updated to cancelled");
+      return { msg: "Payment cancelled", payment };
+    }
+
+    if (status === "EXPIRED") {
+      payment.status = "expired";
+      payment.callbackPayload = payload;
+      await payment.save();
+      console.log("Payment status updated to expired");
+      return { msg: "Payment expired", payment };
+    }
+
+    console.log("IPN status unknown:", status);
+    return { msg: "IPN received but status unknown", status };
   }
 
   async getMyPayments(userId: string) {
