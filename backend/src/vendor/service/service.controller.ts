@@ -25,7 +25,6 @@ export class ServiceController {
         return res_obj
     }
     @Get("/category")
-    @UseGuards(AuthGuard)
     async getAllCategories(){
         const res_obj = await this.vendorSevice.getAllCategoriesService();
         return res_obj
