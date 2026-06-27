@@ -38,7 +38,8 @@ const PaymentPage = () => {
             }
 
             if (result?.paymentUrl) {
-                window.location.href = result.paymentUrl;
+                // Open SSLCommerz in new tab to avoid popup blocking
+                window.open(result.paymentUrl, '_blank');
             } else {
                 toast.error('Failed to generate payment URL');
             }
